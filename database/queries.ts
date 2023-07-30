@@ -141,8 +141,8 @@ const queries = {
   // returns a user form SQL if credentials match
   checkUserCreds: (email: string, hashedPassword: string) => {
     return `SELECT id FROM users
-            WHERE email LIKE ${email}
-            AND password LIKE ${hashedPassword}`;
+            WHERE email LIKE "${email}"
+            AND password LIKE "${hashedPassword}"`;
   },
 
   addToken: (userId: number | string, token: string) => {

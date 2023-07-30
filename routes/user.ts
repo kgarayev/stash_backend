@@ -103,7 +103,7 @@ router.post("/register", async (req, res) => {
 // log user in
 router.post("/login", async (req, res) => {
   // just console log the body
-  console.log("request body: ", req.body);
+  // console.log("request body: ", req.body);
   // console.log("password only: ", req.body.password);
 
   // validate
