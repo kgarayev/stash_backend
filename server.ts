@@ -1,6 +1,12 @@
 // importing express framework and types
 import express, { Request, Response, NextFunction } from "express";
 
+// importing check token middleware function
+import { checkToken } from "./middleware/auth";
+
+// import limiter
+import { limiter } from "./middleware/limiter";
+
 interface Error {
   status?: number;
   message?: string;
@@ -31,6 +37,8 @@ const myApp = express();
 
 // Middleware section START
 
+myApp.use(limiter);
+
 // helmet middleware
 myApp.use(helmet());
 
@@ -58,10 +66,10 @@ myApp.use(logging);
 myApp.use("/user", userRouter);
 
 // view accounts route middleware
-myApp.use("/account", accountRouter);
+// myApp.use("/account", accountRouter);
 
 // view transactions route middleware
-myApp.use("/transaction", transactionRouter);
+// myApp.use("/transaction", transactionRouter);
 
 // custom 404
 myApp.use((req: Request, res: Response, next: NextFunction) => {

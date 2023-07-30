@@ -150,6 +150,11 @@ const queries = {
             (user_id, token)
             VALUES ("${userId}", "${token}")`;
   },
+
+  getIdByToken: (token: string | string[] | undefined) => {
+    return `SELECT user_id FROM tokens
+            WHERE token LIKE "${token}"`;
+  },
 };
 
 export { queries };
