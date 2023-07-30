@@ -1,0 +1,286 @@
+{
+  "users": [
+    {
+      "firstName": "Rick",
+      "lastName": "Sanchez",
+      "number": "0712345678",
+      "email": "ricksanchez@gmail.com",
+      "dob": "01/01/1900",
+      "password": "Rick12345",
+      "accounts": [
+        {
+          "accountName": "current account",
+          "accountNumber": "12345678",
+          "sortCode": "123456",
+          "currencyCode": "gbp",
+          "currencyName": "british pound",
+          "currencySymbol": "£",
+          "currencyCountry": "UK",
+          "balance": "5000",
+          "transactions": [
+            {
+              "type": "sent",
+              "details": "Slick Sanchez",
+              "date": "05/06/2023",
+              "amount": "199.99"
+            },
+            {
+              "type": "received",
+              "details": "Mick Sanchez",
+              "date": "05/05/2023",
+              "amount": "9.99"
+            },
+            {
+              "type": "sent",
+              "details": "Jack Sanchez",
+              "date": "05/04/2023",
+              "amount": "19.99"
+            },
+            {
+              "type": "received",
+              "details": "Matt Sanchez",
+              "date": "05/03/2023",
+              "amount": "99.99"
+            },
+            {
+              "type": "sent",
+              "details": "Paul Sanchez",
+              "date": "05/02/2023",
+              "amount": "0.99"
+            }
+          ]
+        },
+        {
+          "accountName": "savings account",
+          "accountNumber": "910111214",
+          "sortCode": "789101",
+          "currencyCode": "usd",
+          "currencyName": "us dollar",
+          "currencySymbol": "$",
+          "currencyCountry": "USA",
+          "balance": "10000",
+          "transactions": [
+            {
+              "type": "sent",
+              "details": "Slick Danchez",
+              "date": "05/06/2022",
+              "amount": "500"
+            },
+            {
+              "type": "received",
+              "details": "Mick Ranchez",
+              "date": "05/05/2022",
+              "amount": "100"
+            },
+            {
+              "type": "sent",
+              "details": "Jack Fanchez",
+              "date": "05/04/2022",
+              "amount": "200"
+            },
+            {
+              "type": "received",
+              "details": "Matt Lanchez",
+              "date": "05/03/2022",
+              "amount": "300"
+            },
+            {
+              "type": "sent",
+              "details": "Paul Tanchez",
+              "date": "05/02/2022",
+              "amount": "400"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "firstName": "Morty",
+      "lastName": "Smith",
+      "number": "0712345678",
+      "email": "mortysmith@gmail.com",
+      "dob": "01/01/1999",
+      "password": "Morty12345",
+      "accounts": [
+        {
+          "accountName": "current account",
+          "accountNumber": "12345678",
+          "sortCode": "123456",
+          "currencyCode": "eur",
+          "currencyName": "euro",
+          "currencySymbol": "€",
+          "currencyCountry": "Eurozone",
+          "balance": "1234",
+          "transactions": [
+            {
+              "type": "sent",
+              "details": "Carty Smith",
+              "date": "05/06/2020",
+              "amount": "1000"
+            },
+            {
+              "type": "received",
+              "details": "Darty Smith",
+              "date": "05/05/2020",
+              "amount": "900"
+            },
+            {
+              "type": "sent",
+              "details": "Larty Smith",
+              "date": "05/04/2020",
+              "amount": "800"
+            },
+            {
+              "type": "received",
+              "details": "Barty Smith",
+              "date": "05/03/2020",
+              "amount": "700"
+            },
+            {
+              "type": "sent",
+              "details": "Hunty Smith",
+              "date": "05/02/2020",
+              "amount": "600"
+            }
+          ]
+        },
+        {
+          "accountName": "savings account",
+          "accountNumber": "32456567",
+          "sortCode": "546576",
+          "currencyCode": "yen",
+          "currencyName": "japanese yen",
+          "currencySymbol": "¥",
+          "currencyCountry": "Japan",
+          "balance": "96746",
+          "transactions": [
+            {
+              "type": "sent",
+              "details": "Carty Thompson",
+              "date": "05/06/2000",
+              "amount": "0.1"
+            },
+            {
+              "type": "received",
+              "details": "Darty Jones",
+              "date": "05/05/2000",
+              "amount": "0.2"
+            },
+            {
+              "type": "sent",
+              "details": "Larty Tucker",
+              "date": "05/04/2000",
+              "amount": "0.3"
+            },
+            {
+              "type": "received",
+              "details": "Barty Trump",
+              "date": "05/03/2000",
+              "amount": "0.4"
+            },
+            {
+              "type": "sent",
+              "details": "Hunty Harris",
+              "date": "05/02/2000",
+              "amount": "0.5"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "firstName": "Bart",
+      "lastName": "Simpson",
+      "number": "7687d9854",
+      "email": "bartsimpson@gmail.com",
+      "dob": "01/01/1980",
+      "password": "Bart12345",
+      "accounts": [
+        {
+          "accountName": "current account",
+          "accountNumber": "98765432",
+          "sortCode": "324345",
+          "currencyCode": "try",
+          "currencyName": "turkish lira",
+          "currencySymbol": "₺",
+          "currencyCountry": "Turkey",
+          "balance": "794576",
+          "transactions": [
+            {
+              "type": "sent",
+              "details": "Mart Simpson",
+              "date": "05/06/1990",
+              "amount": "5000"
+            },
+            {
+              "type": "received",
+              "details": "Homer Simpson",
+              "date": "05/05/1990",
+              "amount": "4000"
+            },
+            {
+              "type": "sent",
+              "details": "Lucy Simpson",
+              "date": "05/04/1990",
+              "amount": "3000"
+            },
+            {
+              "type": "received",
+              "details": "Marge Simpson",
+              "date": "05/03/1990",
+              "amount": "2000"
+            },
+            {
+              "type": "sent",
+              "details": "Kate Simpson",
+              "date": "05/02/1990",
+              "amount": "1000"
+            }
+          ]
+        },
+        {
+          "accountName": "savings account",
+          "accountNumber": "00055577",
+          "sortCode": "229944",
+          "currencyCode": "rub",
+          "currencyName": "russian rouble",
+          "currencySymbol": "₽",
+          "currencyCountry": "Russian Federation",
+          "balance": "100",
+          "transactions": [
+            {
+              "type": "sent",
+              "details": "Carty Griffin",
+              "date": "05/06/2010",
+              "amount": "1"
+            },
+            {
+              "type": "received",
+              "details": "Darty Griffin",
+              "date": "05/05/2010",
+              "amount": "2"
+            },
+            {
+              "type": "sent",
+              "details": "Larty Griffin",
+              "date": "05/04/2010",
+              "amount": "3"
+            },
+            {
+              "type": "received",
+              "details": "Barty Griffin",
+              "date": "05/03/2010",
+              "amount": "4"
+            },
+            {
+              "type": "sent",
+              "details": "Hunty Griffin",
+              "date": "05/02/2010",
+              "amount": "5"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
