@@ -2,8 +2,14 @@
 // import express
 import express from "express";
 
-// import router
-const router = express.Router();
+import session from "express-session";
+
+// import dotenv
+import dotenv from "dotenv";
+dotenv.config();
+
+// importing jwt
+// import jwt from "jsonwebtoken";
 
 // importing the random id generator function
 import { genRandomString } from "../utils/math";
@@ -19,6 +25,9 @@ import { asyncMySQL } from "../database/connection";
 
 // import queries
 import { queries } from "../database/queries";
+
+// import router
+const router = express.Router();
 
 const {
   addUser,
@@ -134,6 +143,19 @@ router.post("/login", async (req, res) => {
     if (results.length > 0) {
       // generating a token
       const token = genRandomString(128);
+
+      // Generate a JWT with a payload of the user's ID
+      // const token = jwt.sign(
+      //   { userId: results[0].id },
+      //   process.env.JWT_SECRET_KEY
+      // );
+
+      // Set the JWT as a secure, HttpOnly cookie
+      // res.cookie("token", token, {
+      //   httpOnly: true,
+      //   secure: true, // this should be set to true in a production environment
+      //   maxAge: 15 * 60 * 1000, // 15 mins
+      // });
 
       // add a token into a tokens table
       await asyncMySQL(addToken(results[0].id, token));

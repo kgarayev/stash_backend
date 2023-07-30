@@ -1,6 +1,26 @@
 // importing express framework and types
 import express, { Request, Response, NextFunction } from "express";
 
+import dotenv from "dotenv";
+dotenv.config();
+
+// import session
+import session from "express-session";
+
+const MySQLStore = require("express-mysql-session")(session);
+
+// MySQL options
+let options = {
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  host: process.env.DB_HOST,
+  port: process.env.DB_PORT ? parseInt(process.env.DB_PORT) : 3306,
+  database: "stash",
+};
+
+// Set up MySQL session store
+let sessionStore = new MySQLStore(options);
+
 // importing check token middleware function
 import { checkToken } from "./middleware/auth";
 
@@ -55,6 +75,22 @@ myApp.use(express.json());
 
 // a logging middleware
 myApp.use(logging);
+
+// Use express-session
+myApp.use(
+  session({
+    secret: process.env.SESSION_SECRET || "defaultSecret",
+    store: sessionStore,
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      httpOnly: true, // prevents client JavaScript from accessing cookies
+      secure: true, // Set this to true if you're using HTTPS
+      maxAge: 15 * 60 * 1000, // 15 minutes
+      sameSite: "strict", // helps protect against CSRF attacks
+    },
+  })
+);
 
 // API KEY validation middleware
 // myApp.use(simpleAuth);

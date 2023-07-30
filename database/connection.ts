@@ -1,6 +1,9 @@
 // import mysql
 import mysql from "mysql";
 
+import dotenv from "dotenv";
+dotenv.config();
+
 // import queries functions
 import { queries } from "./queries";
 
@@ -16,10 +19,10 @@ const {
 // need to create our own wrapper / promisify this
 // connect to RDMS without specifying the database itself
 const myConnection = mysql.createConnection({
-  user: "root",
-  password: "",
-  host: "localhost",
-  port: 3306,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  host: process.env.DB_HOST,
+  port: process.env.DB_PORT ? parseInt(process.env.DB_PORT) : 3306,
 });
 
 // wrapping the query code in the promise to make it async await compatible
@@ -74,6 +77,7 @@ createDB("stash")
       await asyncMySQL(createAccountsTable());
       await asyncMySQL(createTransactionsTable());
       await asyncMySQL(createTokensTable());
+      // await asyncMySQL(createSessionsTable());
     } catch (error) {
       console.log(error);
     }
