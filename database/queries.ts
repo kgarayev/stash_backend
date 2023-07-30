@@ -44,6 +44,16 @@ const queries = {
       )`;
   },
 
+  //   create tokens table if does not exist
+  createTokensTable: () => {
+    return `CREATE TABLE IF NOT EXISTS tokens (
+            id INT(11) PRIMARY KEY AUTO_INCREMENT UNIQUE,
+            user_id INT(11) NOT NULL,
+            token VARCHAR(128) NOT NULL, 
+            entry_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+        )`;
+  },
+
   //   add user query
   addUser: (
     firstName: string,
@@ -126,6 +136,19 @@ const queries = {
   //   a generic get/select query
   getQuery: (dbName: string, id: number) => {
     return `SELECT * FROM ${dbName} WHERE id LIKE ${id}`;
+  },
+
+  // returns a user form SQL if credentials match
+  checkUserCreds: (email: string, hashedPassword: string) => {
+    return `SELECT id FROM users
+            WHERE email LIKE ${email}
+            AND password LIKE ${hashedPassword}`;
+  },
+
+  addToken: (userId: number | string, token: string) => {
+    return `INSERT INTO tokens
+            (user_id, token)
+            VALUES ("${userId}", "${token}")`;
   },
 };
 

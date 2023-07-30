@@ -4,8 +4,12 @@ import mysql from "mysql";
 // import queries functions
 import { queries } from "./queries";
 
-const { createUsersTable, createAccountsTable, createTransactionsTable } =
-  queries;
+const {
+  createUsersTable,
+  createAccountsTable,
+  createTransactionsTable,
+  createTokensTable,
+} = queries;
 
 // instance of a connection
 // this driver does not support promises
@@ -22,7 +26,7 @@ const myConnection = mysql.createConnection({
 // resolve if no error, reject if error
 // wrapping the drive inside a promise
 // returns an array
-const asyncMySQL = (query: string) => {
+const asyncMySQL = (query: string): Promise<any[]> => {
   return new Promise((resolve, reject) => {
     myConnection.query(query, (error, results) => {
       if (error) {
@@ -69,6 +73,7 @@ createDB("stash")
       await asyncMySQL(createUsersTable());
       await asyncMySQL(createAccountsTable());
       await asyncMySQL(createTransactionsTable());
+      await asyncMySQL(createTokensTable());
     } catch (error) {
       console.log(error);
     }

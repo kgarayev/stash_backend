@@ -123,6 +123,24 @@ const addUser = {
     }),
 };
 
+// for user login
+const loginUser = {
+  email: joi
+    .string()
+    .required()
+    .email({ tlds: { allow: false } })
+    .messages({
+      "string.empty": "email is required",
+      "string.email": "email must be a valid email address",
+    }),
+
+  password: joi.string().min(8).max(32).trim().messages({
+    "string.empty": "password is required",
+    "string.min": "password must have a minimum length of {#limit} characters",
+    "string.max": "password must have a maximum length of {#limit} characters",
+  }),
+};
+
 // for updating user info
 
 const updateUser = {
@@ -437,6 +455,7 @@ export {
   updateAccount,
   addTransaction,
   updateTransaction,
+  loginUser,
 };
 
 // FOR LATER USE:
