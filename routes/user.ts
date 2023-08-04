@@ -161,6 +161,12 @@ router.post("/login", async (req, res) => {
       await asyncMySQL(addToken(results[0].id, token));
 
       // send status and token to the front
+      res.cookie("name", "tobi", {
+        domain: "localhost",
+        path: "/",
+        secure: false,
+      });
+      // res.cookie("token", token);
       res.send({ status: 1, token });
       return;
     } else {
