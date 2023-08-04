@@ -1,6 +1,16 @@
 import { queries } from "../database/queries";
 import { asyncMySQL } from "../database/connection";
 import cookieParser from 'cookie-parser';
+import session from 'express-session'; // Import express-session
+
+import { SessionData } from 'express-session';
+
+declare module 'express-session' {
+  export interface SessionData {
+    userId?: number;
+  }
+}
+
 
 // importing express framework and types
 import { Request as ExpressRequest, Response, NextFunction } from "express";
@@ -13,6 +23,13 @@ const { getIdByToken } = queries;
 
 // create a function that checks the token provided by the client
 const checkToken = async (req: Request, res: Response, next: NextFunction) => {
+    // Check for user ID in session first
+    if (req.session?.userId) {
+      req.validatedUserId = req.session.userId;
+      next();
+      return;
+    }
+
     // get the token from the cookies instead of the headers
     const token = req.cookies.token;
 
@@ -28,6 +45,7 @@ const checkToken = async (req: Request, res: Response, next: NextFunction) => {
   if (results.length > 0) {
     // attach token id to the request
     req.validatedUserId = results[0].user_id;
+    req.session.userId = results[0].user_id; // Store user ID in session
 
     next();
     return;

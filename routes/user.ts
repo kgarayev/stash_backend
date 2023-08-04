@@ -8,6 +8,7 @@ import session from "express-session";
 import dotenv from "dotenv";
 dotenv.config();
 
+
 // importing jwt
 // import jwt from "jsonwebtoken";
 
@@ -147,27 +148,19 @@ router.post("/login", async (req, res) => {
       // generating a token
       const token = genRandomString(128);
 
-      // Generate a JWT with a payload of the user's ID
-      // const token = jwt.sign(
-      //   { userId: results[0].id },
-      //   process.env.JWT_SECRET_KEY
-      // );
+      (req.session as any).userId = results[0].id;
 
-      // Set the JWT as a secure, HttpOnly cookie
-      // res.cookie("token", token, {
-      //   httpOnly: true,
-      //   secure: true, // this should be set to true in a production environment
-      //   maxAge: 15 * 60 * 1000, // 15 mins
-      // });
+      // max age in milliseconds = 15 mins 
+      const maxAge = 900000;
 
       // add a token into a tokens table
-      await asyncMySQL(addToken(results[0].id, token));
+      await asyncMySQL(addToken(results[0].id, token, maxAge));
 
       // send status and token to the front
-      res.cookie("token", token, { maxAge: 900000, httpOnly: true, sameSite: 'strict' });
+      res.cookie("token", token, { maxAge: 900000, httpOnly: true, sameSite: 'strict', secure: true });
 
       // res.cookie("token", token);
-      res.send({ status: 1, message: "token created" });
+      res.send({ status: 1, message: "logged in" });
       return;
     } else {
       res.send({ status: 0, reason: "invalid credentials" });

@@ -50,7 +50,8 @@ const queries = {
             id INT(11) PRIMARY KEY AUTO_INCREMENT UNIQUE,
             user_id INT(11) NOT NULL,
             token VARCHAR(128) NOT NULL, 
-            entry_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+            entry_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            max_age INT(11) NOT NULL
         )`;
   },
 
@@ -155,10 +156,10 @@ const queries = {
             AND password LIKE "${hashedPassword}"`;
   },
 
-  addToken: (userId: number | string, token: string) => {
+  addToken: (userId: number | string, token: string, maxAge: number) => {
     return `INSERT INTO tokens
-            (user_id, token)
-            VALUES ("${userId}", "${token}")`;
+            (user_id, token, max_age)
+            VALUES ("${userId}", "${token}", "${maxAge}")`;
   },
 
   getIdByToken: (token: string | string[] | undefined) => {

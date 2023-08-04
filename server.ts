@@ -6,21 +6,8 @@ import dotenv from "dotenv";
 dotenv.config();
 
 // import session
-// import session from "express-session";
+import session from "express-session";
 
-// const MySQLStore = require("express-mysql-session")(session);
-
-// MySQL options
-// let options = {
-//   user: process.env.DB_USER,
-//   password: process.env.DB_PASSWORD,
-//   host: process.env.DB_HOST,
-//   port: process.env.DB_PORT ? parseInt(process.env.DB_PORT) : 3306,
-//   database: "stash",
-// };
-
-// Set up MySQL session store
-// let sessionStore = new MySQLStore(options);
 
 // importing check token middleware function
 import { checkToken } from "./middleware/auth";
@@ -63,6 +50,17 @@ myApp.use(limiter);
 // helmet middleware
 myApp.use(helmet());
 
+// helmet middleware
+myApp.use(helmet.contentSecurityPolicy({
+  directives: {
+    defaultSrc: ["'self'"], // Only allow content from your domain
+    scriptSrc: ["'self'", "'unsafe-inline'"], // Allow scripts only from your domain
+    objectSrc: ["'none'"], // Don't allow embedding of objects
+    imgSrc: ["'self'", "img.example.com"], // Allow images from your domain and a trusted source
+    // Other directives as needed
+  },
+}));
+
 // disable fingerprinting
 myApp.disable("x-powered-by");
 
@@ -88,21 +86,25 @@ myApp.use(express.json());
 // a logging middleware
 myApp.use(logging);
 
+const sessionSecret = process.env.SESSION_SECRET;
+
+if (!sessionSecret) {
+  throw new Error('SESSION_SECRET must be set!');
+}
+
 // Use express-session
-// myApp.use(
-//   session({
-//     secret: process.env.SESSION_SECRET || "defaultSecret",
-//     store: sessionStore,
-//     resave: false,
-//     saveUninitialized: false,
-//     cookie: {
-//       httpOnly: true, // prevents client JavaScript from accessing cookies
-//       secure: true, // Set this to true if you're using HTTPS
-//       maxAge: 15 * 60 * 1000, // 15 minutes
-//       sameSite: "strict", // helps protect against CSRF attacks
-//     },
-//   })
-// );
+myApp.use(session({
+  secret: sessionSecret,
+  resave: false,
+  saveUninitialized: true,
+  rolling: true,
+  cookie: {
+    httpOnly: true,
+    secure: true, // use only with HTTPS
+    sameSite: 'strict',
+    maxAge: 5 * 60 * 1000 // session will expire after 5 minutes of inactivity
+  }
+}));
 
 // API KEY validation middleware
 // myApp.use(simpleAuth);
