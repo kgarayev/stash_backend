@@ -134,6 +134,9 @@ router.post("/login", async (req, res) => {
   const hashedPassword = hash256(password + "stashSalt-2023?");
 
   // console.log(hashedPassword);
+  
+
+  // console.log(hashedPassword);
   // implementing the query
   try {
     // return something if there is amatch
@@ -161,13 +164,10 @@ router.post("/login", async (req, res) => {
       await asyncMySQL(addToken(results[0].id, token));
 
       // send status and token to the front
-      res.cookie("name", "tobi", {
-        domain: "localhost",
-        path: "/",
-        secure: false,
-      });
+      res.cookie("token", token, { maxAge: 900000, httpOnly: true, sameSite: 'strict' });
+
       // res.cookie("token", token);
-      res.send({ status: 1, token });
+      res.send({ status: 1, message: "token created" });
       return;
     } else {
       res.send({ status: 0, reason: "invalid credentials" });

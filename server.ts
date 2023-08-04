@@ -66,7 +66,16 @@ myApp.use(helmet());
 // disable fingerprinting
 myApp.disable("x-powered-by");
 
-myApp.use(cors({ exposedHeaders: ["token"] })); //just fixes it for now!!!
+const allowedOrigins = ["http://localhost:5173", "http://127.0.0.1:5173"];
+
+myApp.use(
+  cors({
+    origin: allowedOrigins,
+    credentials: true,
+    exposedHeaders: ["Content-Length", "Token"],
+  })
+);
+
 
 myApp.use(cookieParser());
 
@@ -102,7 +111,7 @@ myApp.use(logging);
 // myApp.use("/generic", genericRouter);
 
 // view users route middleware
-myApp.use("/user", checkToken, userRouter);
+myApp.use("/user", userRouter);
 
 // view accounts route middleware
 // myApp.use("/account", accountRouter);
