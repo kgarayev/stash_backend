@@ -166,6 +166,10 @@ const queries = {
     return `SELECT user_id FROM tokens
             WHERE token LIKE "${token}"`;
   },
+
+  getAll: (dbName: string) => {
+    return `SELECT * FROM ${dbName}`;
+  }
 };
 
 export { queries };

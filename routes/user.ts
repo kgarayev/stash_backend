@@ -8,10 +8,6 @@ import session from "express-session";
 import dotenv from "dotenv";
 dotenv.config();
 
-
-// importing jwt
-// import jwt from "jsonwebtoken";
-
 // importing the random id generator function
 import { genRandomString } from "../utils/math";
 
@@ -27,6 +23,9 @@ import { asyncMySQL } from "../database/connection";
 // import queries
 import { queries } from "../database/queries";
 
+// importing account details function 
+import { accountDetails } from "../utils/accountDetails";
+
 // import router
 const router = express.Router();
 
@@ -37,6 +36,7 @@ const {
   getQuery,
   checkUserCreds,
   addToken,
+  addAccount
 } = queries;
 
 interface DatabaseEntry {
@@ -67,15 +67,10 @@ interface DatabaseEntry {
 // REGISTER POST ROUTE:
 // add user router
 router.post("/register", async (req, res) => {
-  // just console log the body
-  // console.log("request body: ", req.body);
-  // console.log("password only: ", req.body.password);
 
   // validate
   let localErrors = await validate(req.body, "addUser");
 
-  // log local errors if any
-  // console.log("errors: ", localErrors);
 
   // notify about validation errors and abort if any
   if (localErrors) {
@@ -96,8 +91,44 @@ router.post("/register", async (req, res) => {
     await asyncMySQL(
       addUser(firstName, lastName, number, email, dob, hashedPassword)
     );
+
+
+    // automatically creating an account for the user 
+    // implementing the query
+
+    try {
+      const {accountNumber, sortCode} = await accountDetails();
+      const results = await asyncMySQL(checkUserCreds(email, hashedPassword));
+
+      
+
+    const userId = results[0].id;
+
+    console.log(userId);
+    
+
+    const sqlResponse = await asyncMySQL(
+      addAccount(
+        "current account",
+        accountNumber,
+        sortCode,
+        "gbp",
+        "british pound",
+        "£",
+        "UK",
+        "0",
+        String(userId)
+      )
+    );
+
     // notifying the user of successful result
     res.send({ status: 1, message: "User added" });
+
+    } catch (e) {
+      console.log(e);
+      res.send({status:0, message: "something wrong"})
+      
+    }
     return;
   } catch (error) {
     // error message to the front
@@ -107,14 +138,14 @@ router.post("/register", async (req, res) => {
     });
     return;
   }
+
+  
 });
 
 // LOGIN POST ROUTE
 // log user in
 router.post("/login", async (req, res) => {
-  // just console log the body
-  // console.log("request body: ", req.body);
-  // console.log("password only: ", req.body.password);
+
 
   // validate
   let localErrors = await validate(req.body, "loginUser");
