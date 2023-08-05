@@ -123,6 +123,7 @@ router.post("/register", async (req, res) => {
 
     // notifying the user of successful result
     res.send({ status: 1, message: "User added" });
+    return;
 
     } catch (e) {
       console.log(e);

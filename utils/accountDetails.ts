@@ -19,13 +19,13 @@ const accountDetails = async ()=> {
         const latestNumber = await asyncMySQL(`SELECT MAX(account_number) FROM accounts`);
         const latestCode = await asyncMySQL(`SELECT MAX(sort_code) FROM accounts`);
 
-        if (latestNumber) {
+        if (latestNumber && !isNaN(Number(latestNumber))) {
             accountNumber = String(Number(latestNumber) + 1);
         } else {
             accountNumber = "20401000"
         }
     
-        if (latestCode) {
+        if (latestCode && !isNaN(Number(latestCode))) {
             sortCode = String(Number(latestCode) + 1);
         } else {
             sortCode = "001010"
