@@ -46,31 +46,40 @@ interface DatabaseEntry {
 
 // GET ROUTE:
 // get a specific account router
-// router.get("/:id", async (req, res) => {
-//   // convert id from string to number
-//   const id = Number(req.params.id);
+router.get("/", async (req, res) => {
+  // convert id from string to number
+  // const id = Number(req.params.id);
 
-//   // check if the id is number
-//   if (Number.isNaN(id)) {
-//     res.send({ status: 0, reason: "Invalid id" });
-//     return;
-//   }
+  // Check if the current user is authorized to access the account
+  if (!req.session.userId) {
+    res.send({ status: 0, reason: "Unauthorised" });
+    return;
+  }
 
-//   // ask sql for data
-//   // returns an array of results
-//   const results = (await asyncMySQL(
-//     getQuery("accounts", id)
-//   )) as DatabaseEntry[];
+  // check if the id is number
+  // if (Number.isNaN(id)) {
+  //   res.send({ status: 0, reason: "Invalid id" });
+  //   return;
+  // }
 
-//   // check if the results are there
-//   if (results.length > 0) {
-//     res.send({ status: 1, results });
-//     return;
-//   }
+  // ask sql for data
+  // returns an array of results
+  const results = (await asyncMySQL(
+    `SELECT * FROM "accounts" WHERE user_id LIKE ${req.session.userId}`
+  )) as DatabaseEntry[];
 
-//   // if the resuts are not there, communicate this
-//   res.send({ status: 0, reason: "Id not found" });
-// });
+  console.log(results);
+  
+
+  // check if the results are there
+  if (results.length > 0) {
+    res.send({ status: 1, results });
+    return;
+  }
+
+  // if the resuts are not there, communicate this
+  res.send({ status: 0, reason: "Id not found" });
+});
 
 // POST ROUTE:
 // add account router

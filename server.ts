@@ -102,7 +102,7 @@ myApp.use(session({
     httpOnly: true,
     secure: true, // use only with HTTPS
     sameSite: 'strict',
-    maxAge: 5 * 60 * 1000 // session will expire after 5 minutes of inactivity
+    maxAge: 15 * 60 * 1000 // session will expire after 15 minutes of inactivity
   }
 }));
 
@@ -116,7 +116,7 @@ myApp.use(session({
 myApp.use("/user", userRouter);
 
 // view accounts route middleware
-// myApp.use("/account", accountRouter);
+myApp.use("/account", accountRouter);
 
 // view transactions route middleware
 // myApp.use("/transaction", transactionRouter);

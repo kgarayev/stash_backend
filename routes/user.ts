@@ -148,7 +148,8 @@ router.post("/register", async (req, res) => {
 router.post("/login", async (req, res) => {
 
 
-  // validate
+  try {
+    // validate
   let localErrors = await validate(req.body, "loginUser");
 
   // log local errors if any
@@ -159,7 +160,11 @@ router.post("/login", async (req, res) => {
     res.send({ status: 0, reason: "Incomplete or invalid request" });
     return;
   }
-
+  } catch(e) {
+    console.log(e);
+    res.send({status:0, reason: "something gone wrong"})
+  }
+  
   //   destructuring the body
   const { email, password } = req.body;
 
