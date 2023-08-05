@@ -22,13 +22,13 @@ const accountDetails = async ()=> {
         if (latestNumber && !isNaN(Number(latestNumber))) {
             accountNumber = String(Number(latestNumber) + 1);
         } else {
-            accountNumber = "20401000"
+            accountNumber = "20304050"
         }
     
         if (latestCode && !isNaN(Number(latestCode))) {
             sortCode = String(Number(latestCode) + 1);
         } else {
-            sortCode = "001010"
+            sortCode = "102030"
         }
     } catch (e) {
         console.log(e);
