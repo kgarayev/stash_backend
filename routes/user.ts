@@ -186,6 +186,7 @@ router.post("/login", async (req, res) => {
       // const token = genRandomString(128);
 
       (req.session as any).userId = results[0].id;
+      req.session.save()
       console.log(req.session);
       
 

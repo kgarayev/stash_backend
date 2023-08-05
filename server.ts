@@ -95,8 +95,8 @@ if (!sessionSecret) {
 // Use express-session
 myApp.use(session({
   secret: sessionSecret,
-  resave: false,
-  saveUninitialized: true,
+  resave: true,
+  saveUninitialized: false,
   rolling: true,
   cookie: {
     httpOnly: true,

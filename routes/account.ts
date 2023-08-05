@@ -71,12 +71,16 @@ router.get("/", async (req, res) => {
     `SELECT * FROM accounts WHERE user_id LIKE "${req.session.userId}"`
   )) as DatabaseEntry[];
 
-  console.log(results);
+  console.log(results[0]);
+
+  delete results[0].id;
+  delete results[0].user_id;
+  delete results[0].created;
   
 
   // check if the results are there
   if (results.length > 0) {
-    res.send({ status: 1, results });
+    res.send({ status: 1, result: results[0] });
     return;
   }
 
