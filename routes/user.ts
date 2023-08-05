@@ -183,20 +183,22 @@ router.post("/login", async (req, res) => {
     // if there is something, generate a token
     if (results.length > 0) {
       // generating a token
-      const token = genRandomString(128);
+      // const token = genRandomString(128);
 
       (req.session as any).userId = results[0].id;
+      console.log(req.session);
+      
 
       // max age in milliseconds = 15 mins 
-      const maxAge = 900000;
+      // const maxAge = 900000;
 
       // add a token into a tokens table
-      await asyncMySQL(addToken(results[0].id, token, maxAge));
+      // await asyncMySQL(addToken(results[0].id, token, maxAge));
 
       // send status and token to the front
-      res.cookie("token", token, { maxAge: 900000, httpOnly: true, sameSite: 'strict', secure: true });
+      // res.cookie("token", token, { maxAge: 900000, httpOnly: true, sameSite: 'strict', secure: true });
 
-      // res.cookie("token", token);
+
       res.send({ status: 1, message: "logged in" });
       return;
     } else {
@@ -214,6 +216,7 @@ router.post("/login", async (req, res) => {
     });
     return;
   }
+  return;
 });
 
 // // GET ROUTE:

@@ -50,6 +50,9 @@ router.get("/", async (req, res) => {
   // convert id from string to number
   // const id = Number(req.params.id);
 
+  console.log(req.session);
+  
+
   // Check if the current user is authorized to access the account
   if (!req.session.userId) {
     res.send({ status: 0, reason: "Unauthorised" });
@@ -65,7 +68,7 @@ router.get("/", async (req, res) => {
   // ask sql for data
   // returns an array of results
   const results = (await asyncMySQL(
-    `SELECT * FROM "accounts" WHERE user_id LIKE ${req.session.userId}`
+    `SELECT * FROM accounts WHERE user_id LIKE "${req.session.userId}"`
   )) as DatabaseEntry[];
 
   console.log(results);

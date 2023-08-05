@@ -1,6 +1,6 @@
 // importing express framework and types
 import express, { Request, Response, NextFunction } from "express";
-import cookieParser from "cookie-parser";
+// import cookieParser from "cookie-parser";
 
 import dotenv from "dotenv";
 dotenv.config();
@@ -75,7 +75,7 @@ myApp.use(
 );
 
 
-myApp.use(cookieParser());
+// myApp.use(cookieParser());
 
 // handle static files
 myApp.use(express.static("public"));
@@ -100,7 +100,7 @@ myApp.use(session({
   rolling: true,
   cookie: {
     httpOnly: true,
-    secure: true, // use only with HTTPS
+    secure: process.env.NODE_ENV === 'production',
     sameSite: 'strict',
     maxAge: 15 * 60 * 1000 // session will expire after 15 minutes of inactivity
   }
