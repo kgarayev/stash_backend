@@ -27,32 +27,33 @@ const authorise = async (req: Request, res: Response, next: NextFunction) => {
     if (req.session?.userId) {
       req.validatedUserId = req.session.userId;
       next();
+      return;
   } else {
       res.status(401).send("Not authenticated");
       return;
   }
-    // get the token from the cookies instead of the headers
-    const token = req.cookies.token;
+  //   // get the token from the cookies instead of the headers
+  //   const token = req.cookies.token;
 
-    if (!token) {
-      res.send({ status: 0, reason: "no token provided" });
-      return;
-    }
+  //   if (!token) {
+  //     res.send({ status: 0, reason: "no token provided" });
+  //     return;
+  //   }
 
-  const results = await asyncMySQL(getIdByToken(token));
+  // const results = await asyncMySQL(getIdByToken(token));
 
-  console.log(results);
+  // console.log(results);
 
-  if (results.length > 0) {
-    // attach token id to the request
-    req.validatedUserId = results[0].user_id;
-    req.session.userId = results[0].user_id; // Store user ID in session
+  // if (results.length > 0) {
+  //   // attach token id to the request
+  //   req.validatedUserId = results[0].user_id;
+  //   req.session.userId = results[0].user_id; // Store user ID in session
 
-    next();
-    return;
-  }
+  //   next();
+  //   return;
+  // }
 
-  res.send({ status: 0, reason: "bad token" });
+  // res.send({ status: 0, reason: "bad token" });
 };
 
 export { authorise };
