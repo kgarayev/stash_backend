@@ -22,14 +22,15 @@ interface Request extends ExpressRequest {
 const { getIdByToken } = queries;
 
 // create a function that checks the token provided by the client
-const checkToken = async (req: Request, res: Response, next: NextFunction) => {
+const authorise = async (req: Request, res: Response, next: NextFunction) => {
     // Check for user ID in session first
     if (req.session?.userId) {
       req.validatedUserId = req.session.userId;
       next();
+  } else {
+      res.status(401).send("Not authenticated");
       return;
-    }
-
+  }
     // get the token from the cookies instead of the headers
     const token = req.cookies.token;
 
@@ -54,4 +55,4 @@ const checkToken = async (req: Request, res: Response, next: NextFunction) => {
   res.send({ status: 0, reason: "bad token" });
 };
 
-export { checkToken };
+export { authorise };

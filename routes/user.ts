@@ -229,6 +229,10 @@ router.post("/logout", (req, res)=> {
       res.status(500).send('Internal Server Error');
       return;
     }
+
+      // Clear the client-side cookie
+      res.clearCookie('connect.sid', { path: '/' });
+
   
     // Continue with your logout logic if there's no error
     res.status(200).send('Logged out successfully');

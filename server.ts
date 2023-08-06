@@ -10,7 +10,7 @@ import session from "express-session";
 
 
 // importing check token middleware function
-import { checkToken } from "./middleware/auth";
+import { authorise } from "./middleware/auth";
 
 // import limiter
 import { limiter } from "./middleware/limiter";
@@ -94,8 +94,9 @@ if (!sessionSecret) {
 
 // Use express-session
 myApp.use(session({
+  name: "connect.sid",
   secret: sessionSecret,
-  resave: true,
+  resave: false,
   saveUninitialized: false,
   rolling: true,
   cookie: {
@@ -113,10 +114,10 @@ myApp.use(session({
 myApp.use("/user", userRouter);
 
 // view accounts route middleware
-myApp.use("/account", accountRouter);
+myApp.use("/account",authorise, accountRouter);
 
 // view transactions route middleware
-myApp.use("/transaction", transactionRouter);
+myApp.use("/transaction", authorise,transactionRouter);
 
 // custom 404
 myApp.use((req: Request, res: Response, next: NextFunction) => {
