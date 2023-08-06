@@ -391,10 +391,10 @@ const updateAccount = {
 
 // Schema for adding transactions
 const addTransaction = {
-  type: joi.string().required().trim().max(64).messages({
+  type: joi.string().trim().valid('sent', 'received').required().messages({
     "string.empty": "Transaction type is required",
-    "string.max": "Transaction type cannot be more than 64 characters",
-  }),
+    "any.only": "Transaction type must be either 'sent' or 'received'",
+}),
 
   details: joi.string().required().trim().max(64).messages({
     "string.empty": "Transaction details are required",
@@ -421,10 +421,10 @@ const addTransaction = {
 
 // Schema for updating transactions
 const updateTransaction = {
-  type: joi.string().trim().max(64).messages({
+  type: joi.string().trim().valid('sent', 'received').messages({
     "string.empty": "Transaction type is required",
-    "string.max": "Transaction type cannot be more than 64 characters",
-  }),
+    "any.only": "Transaction type must be either 'sent' or 'received'",
+}),
 
   details: joi.string().trim().max(64).messages({
     "string.empty": "Transaction details are required",

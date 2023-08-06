@@ -110,16 +110,13 @@ myApp.use(session({
 // myApp.use(simpleAuth);
 
 // view users route middleware
-// myApp.use("/generic", genericRouter);
-
-// view users route middleware
 myApp.use("/user", userRouter);
 
 // view accounts route middleware
 myApp.use("/account", accountRouter);
 
 // view transactions route middleware
-// myApp.use("/transaction", transactionRouter);
+myApp.use("/transaction", transactionRouter);
 
 // custom 404
 myApp.use((req: Request, res: Response, next: NextFunction) => {

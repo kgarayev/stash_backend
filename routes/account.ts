@@ -47,11 +47,8 @@ interface DatabaseEntry {
 // GET ROUTE:
 // get a specific account router
 router.get("/", async (req, res) => {
-  // convert id from string to number
-  // const id = Number(req.params.id);
 
   console.log(req.session);
-  
 
   // Check if the current user is authorized to access the account
   if (!req.session.userId) {
@@ -59,13 +56,9 @@ router.get("/", async (req, res) => {
     return;
   }
 
-  // check if the id is number
-  // if (Number.isNaN(id)) {
-  //   res.send({ status: 0, reason: "Invalid id" });
-  //   return;
-  // }
 
-  // ask sql for data
+  try {
+    // ask sql for data
   // returns an array of results
   const results = (await asyncMySQL(
     `SELECT * FROM accounts WHERE user_id LIKE "${req.session.userId}"`
@@ -86,8 +79,20 @@ router.get("/", async (req, res) => {
     return;
   }
 
-  // if the resuts are not there, communicate this
-  res.send({ status: 0, reason: "Id not found" });
+
+  } catch (e) {
+    console.log(e);
+        // if the resuts are not there, communicate this
+        res.send({ status: 0, e });
+        return;
+    
+    
+  }
+
+    // if the resuts are not there, communicate this
+    res.send({ status: 0, reason: "Id not found" });
+    return;
+
 });
 
 // POST ROUTE:
