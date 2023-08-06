@@ -220,6 +220,21 @@ router.post("/login", async (req, res) => {
   return;
 });
 
+// LOG OUT POST ROUTE 
+router.post("/logout", (req, res)=> {
+  req.session.destroy((error) => {
+    if (error) {
+      // Handle error, e.g., send a 500 status or log the error
+      console.error('Session destroy error:', error);
+      res.status(500).send('Internal Server Error');
+      return;
+    }
+  
+    // Continue with your logout logic if there's no error
+    res.status(200).send('Logged out successfully');
+  });  // Destroys the session
+})
+
 // // GET ROUTE:
 // // get user router
 // router.get("/", async (req, res) => {
