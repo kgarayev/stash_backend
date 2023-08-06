@@ -23,14 +23,29 @@ const { getIdByToken } = queries;
 
 // create a function that checks the token provided by the client
 const authorise = async (req: Request, res: Response, next: NextFunction) => {
+  console.log(req.session);
+  
     // Check for user ID in session first
     if (req.session?.userId) {
+
       console.log(req.session);
       
       req.validatedUserId = req.session.userId;
       next();
       return;
   } else {
+    console.log("not authenticated");
+
+    delete req.session.userId;
+
+    req.session.destroy((error) => {
+      if (error) {
+        // Handle error, e.g., send a 500 status or log the error
+        console.error('Session destroy error:', error);
+        res.send({status: 0, message: 'Internal Server Error'});
+        return;
+      }});
+
       res.send({status: 0, reason: "Not authenticated"});
       return;
   }

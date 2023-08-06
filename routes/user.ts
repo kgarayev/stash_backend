@@ -222,23 +222,29 @@ router.post("/login", async (req, res) => {
 
 // LOG OUT POST ROUTE 
 router.post("/logout", (req, res)=> {
+
+  delete req.session.userId;
+
   req.session.destroy((error) => {
     if (error) {
       // Handle error, e.g., send a 500 status or log the error
       console.error('Session destroy error:', error);
-      res.status(500).send('Internal Server Error');
+      res.send({status: 0, message: 'Internal Server Error'});
       return;
     }
 
       // Clear the client-side cookie
-      res.clearCookie('connect.sid', { path: '/' });
+console.log("Attempting to clear the cookie...");
+res.clearCookie('connect.sid', { path: '/' });
+console.log("Cookie should be cleared now.");
 
       console.log(req.session);
+      console.log("session deleted");
       
 
   
     // Continue with your logout logic if there's no error
-    res.status(200).send('Logged out successfully');
+    res.send({status:1, message: 'Logged out successfully'});
   });  // Destroys the session
 })
 

@@ -77,6 +77,14 @@ myApp.use(
 
 // myApp.use(cookieParser());
 
+myApp.use((req, res, next) => {
+  res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate'); // HTTP 1.1.
+  res.setHeader('Pragma', 'no-cache'); // HTTP 1.0.
+  res.setHeader('Expires', '0'); // Proxies.
+  next();
+});
+
+
 // handle static files
 myApp.use(express.static("public"));
 
@@ -100,7 +108,7 @@ myApp.use(session({
   saveUninitialized: false,
   rolling: true,
   cookie: {
-    httpOnly: true,
+    httpOnly: false,
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'strict',
     maxAge: 15 * 60 * 1000 // session will expire after 15 minutes of inactivity
