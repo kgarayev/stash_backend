@@ -169,7 +169,7 @@ const queries = {
 
   getAll: (dbName: string) => {
     return `SELECT * FROM ${dbName}`;
-  }
+  },
 };
 
 export { queries };

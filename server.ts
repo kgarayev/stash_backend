@@ -8,7 +8,6 @@ dotenv.config();
 // import session
 import session from "express-session";
 
-
 // importing check token middleware function
 import { authorise } from "./middleware/auth";
 
@@ -51,15 +50,17 @@ myApp.use(limiter);
 myApp.use(helmet());
 
 // helmet middleware
-myApp.use(helmet.contentSecurityPolicy({
-  directives: {
-    defaultSrc: ["'self'"], // Only allow content from your domain
-    scriptSrc: ["'self'", "'unsafe-inline'"], // Allow scripts only from your domain
-    objectSrc: ["'none'"], // Don't allow embedding of objects
-    imgSrc: ["'self'", "img.example.com"], // Allow images from your domain and a trusted source
-    // Other directives as needed
-  },
-}));
+myApp.use(
+  helmet.contentSecurityPolicy({
+    directives: {
+      defaultSrc: ["'self'"], // Only allow content from your domain
+      scriptSrc: ["'self'", "'unsafe-inline'"], // Allow scripts only from your domain
+      objectSrc: ["'none'"], // Don't allow embedding of objects
+      imgSrc: ["'self'", "img.example.com"], // Allow images from your domain and a trusted source
+      // Other directives as needed
+    },
+  })
+);
 
 // disable fingerprinting
 myApp.disable("x-powered-by");
@@ -74,16 +75,14 @@ myApp.use(
   })
 );
 
-
 // myApp.use(cookieParser());
 
 myApp.use((req, res, next) => {
-  res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate'); // HTTP 1.1.
-  res.setHeader('Pragma', 'no-cache'); // HTTP 1.0.
-  res.setHeader('Expires', '0'); // Proxies.
+  res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate"); // HTTP 1.1.
+  res.setHeader("Pragma", "no-cache"); // HTTP 1.0.
+  res.setHeader("Expires", "0"); // Proxies.
   next();
 });
-
 
 // handle static files
 myApp.use(express.static("public"));
@@ -97,23 +96,25 @@ myApp.use(logging);
 const sessionSecret = process.env.SESSION_SECRET;
 
 if (!sessionSecret) {
-  throw new Error('SESSION_SECRET must be set!');
+  throw new Error("SESSION_SECRET must be set!");
 }
 
 // Use express-session
-myApp.use(session({
-  name: "connect.sid",
-  secret: sessionSecret,
-  resave: false,
-  saveUninitialized: false,
-  rolling: true,
-  cookie: {
-    httpOnly: false,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'strict',
-    maxAge: 15 * 60 * 1000 // session will expire after 15 minutes of inactivity
-  }
-}));
+myApp.use(
+  session({
+    name: "connect.sid",
+    secret: sessionSecret,
+    resave: false,
+    saveUninitialized: false,
+    rolling: true,
+    cookie: {
+      httpOnly: false,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      maxAge: 15 * 60 * 1000, // session will expire after 15 minutes of inactivity
+    },
+  })
+);
 
 // API KEY validation middleware
 // myApp.use(simpleAuth);
@@ -122,10 +123,10 @@ myApp.use(session({
 myApp.use("/user", userRouter);
 
 // view accounts route middleware
-myApp.use("/account",authorise, accountRouter);
+myApp.use("/account", authorise, accountRouter);
 
 // view transactions route middleware
-myApp.use("/transaction", authorise,transactionRouter);
+myApp.use("/transaction", authorise, transactionRouter);
 
 // custom 404
 myApp.use((req: Request, res: Response, next: NextFunction) => {

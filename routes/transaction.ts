@@ -47,7 +47,6 @@ interface DatabaseEntry {
 // // GET ROUTE:
 // // get a specific transaction router
 router.get("/", async (req, res) => {
-
   console.log(req.session);
 
   // Check if the current user is authorized to access the account
@@ -62,19 +61,17 @@ router.get("/", async (req, res) => {
     const results = (await asyncMySQL(
       `SELECT * FROM transactions WHERE account_id IN (SELECT id FROM accounts WHERE user_id LIKE "${req.session.userId}")`
     )) as DatabaseEntry[];
-  
+
     // check if the results are there
     if (results.length > 0) {
       res.send({ status: 1, results });
       return;
     }
-
   } catch (e) {
     console.log(e);
 
     res.send({ status: 0, reason: e });
   }
-
 
   // if the resuts are not there, communicate this
   res.send({ status: 0, reason: "Id not found" });
@@ -82,37 +79,75 @@ router.get("/", async (req, res) => {
 
 // // POST ROUTE:
 // // add transaction router
-// router.post("/", async (req, res) => {
-//   // just console log the body
-//   console.log(req.body);
+router.post("/", async (req, res) => {
+  // just console log the body
+  console.log(req.body);
 
-//   // validate
-//   let localErrors = await validate(req.body, "addTransaction");
+  let debitErrors = await validate(req.body, "debit");
 
-//   // log local errors if any
-//   console.log(localErrors);
+  // log local errors if any
+  console.log(debitErrors);
 
-//   // notify about validation errors and abort if any
-//   if (localErrors) {
-//     res.send({ status: 0, reason: "Incomplete or invalid request" });
-//     return;
-//   }
+  // notify about validation errors and abort if any
+  if (debitErrors) {
+    res.send({ status: 0, reason: "Incomplete or invalid request" });
+    return;
+  }
 
-//   //   destructuring the body
-//   const { type, details, amount, accountId } = req.body;
+  //   destructuring the body
+  const { amount } = req.body;
 
-//   // implementing the query
-//   try {
-//     await asyncMySQL(addTransaction(type, details, amount, accountId));
-//     // notifying the front of successful result
-//     res.send({ status: 1, message: "Transaction added" });
-//     return;
-//   } catch (error) {
-//     // error message to the front
-//     res.send({ status: 0, reason: (error as any)?.sqlMessage });
-//     return;
-//   }
-// });
+  const accountId = (await asyncMySQL(
+    `SELECT id FROM accounts WHERE user_id LIKE "${req.session.userId}"`
+  )) as any;
+
+  console.log(accountId[0].id);
+
+  const transaction = {
+    type: "received",
+    details: "debit card pay in",
+    amount,
+    accountId: Number(accountId[0].id),
+  };
+
+  // validate
+  let transactionErrors = await validate(transaction, "addTransaction");
+
+  // log local errors if any
+  console.log(transactionErrors);
+
+  // notify about validation errors and abort if any
+  if (transactionErrors) {
+    res.send({ status: 0, reason: "Incomplete or invalid request" });
+    return;
+  }
+
+  // implementing the query
+  try {
+    await asyncMySQL(
+      addTransaction(
+        transaction.type,
+        transaction.details,
+        amount,
+        String(transaction.accountId)
+      )
+    );
+
+    const result = await asyncMySQL(
+      `UPDATE accounts SET balance = balance + "${amount}" WHERE id LIKE "${transaction.accountId}"`
+    );
+
+    console.log(result);
+
+    // notifying the front of successful result
+    res.send({ status: 1, message: "Transaction added" });
+    return;
+  } catch (error) {
+    // error message to the front
+    res.send({ status: 0, reason: (error as any)?.sqlMessage });
+    return;
+  }
+});
 
 // // DELETE ROUTE:
 // // delete a transaction router

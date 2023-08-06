@@ -391,10 +391,10 @@ const updateAccount = {
 
 // Schema for adding transactions
 const addTransaction = {
-  type: joi.string().trim().valid('sent', 'received').required().messages({
+  type: joi.string().trim().valid("sent", "received").required().messages({
     "string.empty": "Transaction type is required",
     "any.only": "Transaction type must be either 'sent' or 'received'",
-}),
+  }),
 
   details: joi.string().required().trim().max(64).messages({
     "string.empty": "Transaction details are required",
@@ -421,10 +421,10 @@ const addTransaction = {
 
 // Schema for updating transactions
 const updateTransaction = {
-  type: joi.string().trim().valid('sent', 'received').messages({
+  type: joi.string().trim().valid("sent", "received").messages({
     "string.empty": "Transaction type is required",
     "any.only": "Transaction type must be either 'sent' or 'received'",
-}),
+  }),
 
   details: joi.string().trim().max(64).messages({
     "string.empty": "Transaction details are required",
@@ -451,6 +451,16 @@ const updateTransaction = {
 // for debit card validation
 
 const debit = {
+  amount: joi
+    .string()
+    .required()
+    .pattern(/^\d+(\.\d{1,2})?$/) // Allows positive decimal numbers with up to 2 decimal places
+    .messages({
+      "string.empty": "amount is required",
+      "string.pattern.base":
+        "amount must be a valid decimal number with up to 2 decimal places",
+    }),
+
   cardNumber: joi.string().creditCard().required().messages({
     "string.empty": "debit card number is required",
     "string.creditCard": "debit card number must be a valid debit card number",
@@ -559,8 +569,6 @@ export {
 //         "amount must be a valid decimal number with up to 2 decimal places",
 //     }),
 // };
-
-
 
 // // for password change
 
