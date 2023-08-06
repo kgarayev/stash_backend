@@ -25,11 +25,13 @@ const { getIdByToken } = queries;
 const authorise = async (req: Request, res: Response, next: NextFunction) => {
     // Check for user ID in session first
     if (req.session?.userId) {
+      console.log(req.session);
+      
       req.validatedUserId = req.session.userId;
       next();
       return;
   } else {
-      res.status(401).send("Not authenticated");
+      res.send({status: 0, reason: "Not authenticated"});
       return;
   }
   //   // get the token from the cookies instead of the headers

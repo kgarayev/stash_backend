@@ -186,7 +186,7 @@ router.post("/login", async (req, res) => {
       // const token = genRandomString(128);
 
       (req.session as any).userId = results[0].id;
-      req.session.save()
+      req.session.save();
       console.log(req.session);
       
 
@@ -232,6 +232,9 @@ router.post("/logout", (req, res)=> {
 
       // Clear the client-side cookie
       res.clearCookie('connect.sid', { path: '/' });
+
+      console.log(req.session);
+      
 
   
     // Continue with your logout logic if there's no error
