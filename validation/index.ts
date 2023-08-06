@@ -8,6 +8,7 @@ import {
   addTransaction,
   updateTransaction,
   loginUser,
+  debit
 } from "./schema";
 
 // main joi validation functions
@@ -72,6 +73,12 @@ const validate = async (payload: Payload, type: string) => {
       // call joi
       option = joi.object(updateTransaction);
       break;
+
+      case "debit":
+        // call joi
+        option = joi.object(debit);
+        break;
+  
 
     default:
       break;

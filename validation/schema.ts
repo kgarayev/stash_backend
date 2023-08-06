@@ -448,6 +448,34 @@ const updateTransaction = {
   }),
 };
 
+// for debit card validation
+
+const debit = {
+  cardNumber: joi.string().creditCard().required().messages({
+    "string.empty": "debit card number is required",
+    "string.creditCard": "debit card number must be a valid debit card number",
+  }),
+
+  expiryDate: joi
+    .string()
+    .pattern(/^\d{2}\/\d{2}$/)
+    .required()
+    .messages({
+      "string.empty": "debit card expiry date is required",
+      "string.pattern.base":
+        "debit card expiry date must be in the format MM/YY",
+    }),
+
+  CVV: joi
+    .string()
+    .pattern(/^\d{3}$/)
+    .required()
+    .messages({
+      "string.empty": "debit card CVV is required",
+      "string.pattern.base": "debit card CVV must be a 3-digit number",
+    }),
+};
+
 export {
   addUser,
   updateUser,
@@ -456,6 +484,7 @@ export {
   addTransaction,
   updateTransaction,
   loginUser,
+  debit,
 };
 
 // FOR LATER USE:
@@ -531,33 +560,7 @@ export {
 //     }),
 // };
 
-// // for debit card validation
 
-// export const debit = {
-//   cardNumber: joi.string().creditCard().required().messages({
-//     "string.empty": "debit card number is required",
-//     "string.creditCard": "debit card number must be a valid debit card number",
-//   }),
-
-//   expiryDate: joi
-//     .string()
-//     .pattern(/^\d{2}\/\d{2}$/)
-//     .required()
-//     .messages({
-//       "string.empty": "debit card expiry date is required",
-//       "string.pattern.base":
-//         "debit card expiry date must be in the format MM/YY",
-//     }),
-
-//   CVV: joi
-//     .string()
-//     .pattern(/^\d{3}$/)
-//     .required()
-//     .messages({
-//       "string.empty": "debit card CVV is required",
-//       "string.pattern.base": "debit card CVV must be a 3-digit number",
-//     }),
-// };
 
 // // for password change
 
