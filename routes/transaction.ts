@@ -47,7 +47,7 @@ interface DatabaseEntry {
 // // GET ROUTE:
 // // get a specific transaction router
 router.get("/", async (req, res) => {
-  console.log(req.session);
+  // console.log(req.session);
 
   // Check if the current user is authorized to access the account
   if (!req.session.userId) {
@@ -68,7 +68,7 @@ router.get("/", async (req, res) => {
       return;
     }
   } catch (e) {
-    console.log(e);
+    // console.log(e);
 
     res.send({ status: 0, reason: e });
   }
@@ -81,12 +81,12 @@ router.get("/", async (req, res) => {
 // // add transaction router
 router.post("/", async (req, res) => {
   // just console log the body
-  console.log(req.body);
+  // console.log(req.body);
 
   let debitErrors = await validate(req.body, "debit");
 
   // log local errors if any
-  console.log(debitErrors);
+  // console.log(debitErrors);
 
   // notify about validation errors and abort if any
   if (debitErrors) {
@@ -101,7 +101,7 @@ router.post("/", async (req, res) => {
     `SELECT id FROM accounts WHERE user_id LIKE "${req.session.userId}"`
   )) as any;
 
-  console.log(accountId[0].id);
+  // console.log(accountId[0].id);
 
   const transaction = {
     type: "received",
@@ -114,7 +114,7 @@ router.post("/", async (req, res) => {
   let transactionErrors = await validate(transaction, "addTransaction");
 
   // log local errors if any
-  console.log(transactionErrors);
+  // console.log(transactionErrors);
 
   // notify about validation errors and abort if any
   if (transactionErrors) {

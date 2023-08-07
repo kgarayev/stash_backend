@@ -23,10 +23,11 @@ const { getIdByToken } = queries;
 // create a function that checks the token provided by the client
 const authorise = async (req: Request, res: Response, next: NextFunction) => {
   console.log(req.session);
+  console.log(req.session.userId);
 
   // Check for user ID in session first
   if (req.session?.userId) {
-    console.log(req.session);
+    // console.log(req.session);
 
     req.validatedUserId = req.session.userId;
     next();

@@ -47,8 +47,7 @@ interface DatabaseEntry {
 // GET ROUTE:
 // get a specific account router
 router.get("/", async (req, res) => {
-
-  console.log(req.session);
+  // console.log(req.session);
 
   // Check if the current user is authorized to access the account
   if (!req.session.userId) {
@@ -56,43 +55,34 @@ router.get("/", async (req, res) => {
     return;
   }
 
-
   try {
     // ask sql for data
-  // returns an array of results
-  const results = (await asyncMySQL(
-    `SELECT * FROM accounts WHERE user_id LIKE "${req.session.userId}"`
-  )) as DatabaseEntry[];
+    // returns an array of results
+    const results = (await asyncMySQL(
+      `SELECT * FROM accounts WHERE user_id LIKE "${req.session.userId}"`
+    )) as DatabaseEntry[];
 
+    delete results[0].id;
+    delete results[0].user_id;
+    delete results[0].created;
 
-  delete results[0].id;
-  delete results[0].user_id;
-  delete results[0].created;
+    console.log(results[0]);
 
-  
-  console.log(results[0]);
-  
-
-  // check if the results are there
-  if (results.length > 0) {
-    res.send({ status: 1, result: results[0] });
-    return;
-  }
-
-
+    // check if the results are there
+    if (results.length > 0) {
+      res.send({ status: 1, result: results[0] });
+      return;
+    }
   } catch (e) {
     console.log(e);
-        // if the resuts are not there, communicate this
-        res.send({ status: 0, e });
-        return;
-    
-    
+    // if the resuts are not there, communicate this
+    res.send({ status: 0, e });
+    return;
   }
 
-    // if the resuts are not there, communicate this
-    res.send({ status: 0, reason: "Id not found" });
-    return;
-
+  // if the resuts are not there, communicate this
+  res.send({ status: 0, reason: "Id not found" });
+  return;
 });
 
 // POST ROUTE:

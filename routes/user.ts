@@ -23,7 +23,7 @@ import { asyncMySQL } from "../database/connection";
 // import queries
 import { queries } from "../database/queries";
 
-// importing account details function 
+// importing account details function
 import { accountDetails } from "../utils/accountDetails";
 
 // import router
@@ -36,7 +36,7 @@ const {
   getQuery,
   checkUserCreds,
   addToken,
-  addAccount
+  addAccount,
 } = queries;
 
 interface DatabaseEntry {
@@ -67,10 +67,8 @@ interface DatabaseEntry {
 // REGISTER POST ROUTE:
 // add user router
 router.post("/register", async (req, res) => {
-
   // validate
   let localErrors = await validate(req.body, "addUser");
-
 
   // notify about validation errors and abort if any
   if (localErrors) {
@@ -92,43 +90,37 @@ router.post("/register", async (req, res) => {
       addUser(firstName, lastName, number, email, dob, hashedPassword)
     );
 
-
-    // automatically creating an account for the user 
+    // automatically creating an account for the user
     // implementing the query
 
     try {
-      const {accountNumber, sortCode} = await accountDetails();
+      const { accountNumber, sortCode } = await accountDetails();
       const results = await asyncMySQL(checkUserCreds(email, hashedPassword));
 
-      
+      const userId = results[0].id;
 
-    const userId = results[0].id;
+      console.log(userId);
 
-    console.log(userId);
-    
+      const sqlResponse = await asyncMySQL(
+        addAccount(
+          "current account",
+          accountNumber,
+          sortCode,
+          "gbp",
+          "british pound",
+          "£",
+          "UK",
+          "0",
+          String(userId)
+        )
+      );
 
-    const sqlResponse = await asyncMySQL(
-      addAccount(
-        "current account",
-        accountNumber,
-        sortCode,
-        "gbp",
-        "british pound",
-        "£",
-        "UK",
-        "0",
-        String(userId)
-      )
-    );
-
-    // notifying the user of successful result
-    res.send({ status: 1, message: "User added" });
-    return;
-
+      // notifying the user of successful result
+      res.send({ status: 1, message: "User added" });
+      return;
     } catch (e) {
       console.log(e);
-      res.send({status:0, message: "something wrong"})
-      
+      res.send({ status: 0, message: "something wrong" });
     }
     return;
   } catch (error) {
@@ -139,32 +131,28 @@ router.post("/register", async (req, res) => {
     });
     return;
   }
-
-  
 });
 
 // LOGIN POST ROUTE
 // log user in
 router.post("/login", async (req, res) => {
-
-
   try {
     // validate
-  let localErrors = await validate(req.body, "loginUser");
+    let localErrors = await validate(req.body, "loginUser");
 
-  // log local errors if any
-  console.log("errors: ", localErrors);
+    // log local errors if any
+    console.log("errors: ", localErrors);
 
-  // notify about validation errors and abort if any
-  if (localErrors) {
-    res.send({ status: 0, reason: "Incomplete or invalid request" });
-    return;
-  }
-  } catch(e) {
+    // notify about validation errors and abort if any
+    if (localErrors) {
+      res.send({ status: 0, reason: "Incomplete or invalid request" });
+      return;
+    }
+  } catch (e) {
     console.log(e);
-    res.send({status:0, reason: "something gone wrong"})
+    res.send({ status: 0, reason: "something gone wrong" });
   }
-  
+
   //   destructuring the body
   const { email, password } = req.body;
 
@@ -172,7 +160,6 @@ router.post("/login", async (req, res) => {
   const hashedPassword = hash256(password + "stashSalt-2023?");
 
   // console.log(hashedPassword);
-  
 
   // console.log(hashedPassword);
   // implementing the query
@@ -188,9 +175,8 @@ router.post("/login", async (req, res) => {
       (req.session as any).userId = results[0].id;
       req.session.save();
       console.log(req.session);
-      
 
-      // max age in milliseconds = 15 mins 
+      // max age in milliseconds = 15 mins
       // const maxAge = 900000;
 
       // add a token into a tokens table
@@ -198,7 +184,6 @@ router.post("/login", async (req, res) => {
 
       // send status and token to the front
       // res.cookie("token", token, { maxAge: 900000, httpOnly: true, sameSite: 'strict', secure: true });
-
 
       res.send({ status: 1, message: "logged in" });
       return;
@@ -220,33 +205,30 @@ router.post("/login", async (req, res) => {
   return;
 });
 
-// LOG OUT POST ROUTE 
-router.post("/logout", (req, res)=> {
-
+// LOG OUT POST ROUTE
+router.post("/logout", (req, res) => {
   delete req.session.userId;
 
   req.session.destroy((error) => {
     if (error) {
       // Handle error, e.g., send a 500 status or log the error
-      console.error('Session destroy error:', error);
-      res.send({status: 0, message: 'Internal Server Error'});
+      console.error("Session destroy error:", error);
+      res.send({ status: 0, message: "Internal Server Error" });
       return;
     }
 
-      // Clear the client-side cookie
-console.log("Attempting to clear the cookie...");
-res.clearCookie('connect.sid', { path: '/' });
-console.log("Cookie should be cleared now.");
+    // Clear the client-side cookie
+    console.log("Attempting to clear the cookie...");
+    res.clearCookie("connect.sid", { path: "/" });
+    console.log("Cookie should be cleared now.");
 
-      console.log(req.session);
-      console.log("session deleted");
-      
+    console.log(req.session);
+    console.log("session deleted");
 
-  
     // Continue with your logout logic if there's no error
-    res.send({status:1, message: 'Logged out successfully'});
-  });  // Destroys the session
-})
+    res.send({ status: 1, message: "Logged out successfully" });
+  }); // Destroys the session
+});
 
 // // GET ROUTE:
 // // get user router
