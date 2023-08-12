@@ -29,9 +29,9 @@ const myConnection = mysql.createConnection({
 // resolve if no error, reject if error
 // wrapping the drive inside a promise
 // returns an array
-const asyncMySQL = (query: string): Promise<any[]> => {
+const asyncMySQL = (query: string, params: any[]): Promise<any[]> => {
   return new Promise((resolve, reject) => {
-    myConnection.query(query, (error, results) => {
+    myConnection.query(query, params, (error, results) => {
       if (error) {
         reject(error);
         return;
@@ -46,7 +46,7 @@ const asyncMySQL = (query: string): Promise<any[]> => {
 const createDB = async (dbName: string) => {
   try {
     // Create the database if it doesn't exist
-    await asyncMySQL(`CREATE DATABASE IF NOT EXISTS ${dbName}`);
+    await asyncMySQL(`CREATE DATABASE IF NOT EXISTS stash`, []);
 
     // wrap inside the promise
     return new Promise<void>((resolve, reject) => {
@@ -73,10 +73,10 @@ createDB("stash")
     // create the individual tables now
     // create tables createUsersTable, accounts and transactions
     try {
-      await asyncMySQL(createUsersTable());
-      await asyncMySQL(createAccountsTable());
-      await asyncMySQL(createTransactionsTable());
-      await asyncMySQL(createTokensTable());
+      await asyncMySQL(createUsersTable(), []);
+      await asyncMySQL(createAccountsTable(), []);
+      await asyncMySQL(createTransactionsTable(), []);
+      await asyncMySQL(createTokensTable(), []);
       // await asyncMySQL(createSessionsTable());
     } catch (error) {
       console.log(error);

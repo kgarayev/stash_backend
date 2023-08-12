@@ -66,109 +66,82 @@ const queries = {
   // },
 
   //   add user query
-  addUser: (
-    firstName: string,
-    lastName: string,
-    number: string,
-    email: string,
-    dob: string,
-    password_hash: string
-  ) => {
+  addUser: () => {
     return `INSERT INTO users (first_name, last_name, number, email, dob, password) 
               VALUES (
-                  "${firstName}", 
-                  "${lastName}", 
-                  "${number}", 
-                  "${email}", 
-                  STR_TO_DATE("${dob}", "%d/%m/%Y"), 
-                  "${password_hash}")`;
+                  ?, 
+                  ?, 
+                  ?, 
+                  ?, 
+                  STR_TO_DATE(?, "%d/%m/%Y"), 
+                  ?)`;
   },
 
   //   add account query
-  addAccount: (
-    accountName: string,
-    accountNumber: string,
-    sortCode: string,
-    currencyCode: string,
-    currencyName: string,
-    currencySymbol: string,
-    currencyCountry: string,
-    balance: string,
-    userId: string
-  ) => {
+  addAccount: () => {
     return `INSERT INTO accounts (
                       account_name, account_number, 
                       sort_code, currency_code, 
                       currency_name, currency_symbol, 
                       currency_country, balance, user_id) 
                           VALUES (
-                              "${accountName}", 
-                              "${accountNumber}", 
-                              "${sortCode}", 
-                              "${currencyCode}", 
-                              "${currencyName}",
-                              "${currencySymbol}",
-                              "${currencyCountry}",
-                              "${balance}",
-                              "${userId}")`;
+                              ?, 
+                              ?, 
+                              ?, 
+                              ?, 
+                              ?,
+                              ?,
+                              ?,
+                              ?,
+                              ?)`;
   },
 
   //   add transaction query
-  addTransaction: (
-    type: string,
-    details: string,
-    amount: string,
-    accountId: string
-  ) => {
+  addTransaction: () => {
     return `INSERT INTO transactions (type, details, amount, account_id) 
               VALUES (
-                  "${type}", 
-                  "${details}", 
-                  "${amount}", 
-                  "${accountId}")`;
+                ?, 
+                ?, 
+                ?, 
+                ?)`;
   },
 
   // GENERIC QUERIES:
   //  a generic remove/delete query
-  deleteQuery: (dbName: string, id: number) => {
-    return `DELETE FROM ${dbName} WHERE id LIKE ${id}`;
+  deleteQuery: () => {
+    return `DELETE FROM ? WHERE id = ?`;
   },
 
   //   a generic update query
-  updateQuery: (
-    dbName: string,
-    dbColumn: string,
-    newValue: string,
-    id: number
-  ) => {
-    return `UPDATE ${dbName} SET ${dbColumn} = "${newValue}" WHERE id LIKE "${id}"`;
+  updateQuery: () => {
+    return `UPDATE ? SET ? = "?" WHERE id = ?`;
   },
 
   //   a generic get/select query
-  getQuery: (dbName: string, id: number) => {
-    return `SELECT * FROM ${dbName} WHERE id LIKE ${id}`;
+  getQuery: () => {
+    return `SELECT * FROM ? WHERE id = ?`;
   },
 
   // returns a user form SQL if credentials match
-  checkUserCreds: (email: string, hashedPassword: string) => {
+  checkUserCreds: () => {
     return `SELECT id FROM users
-            WHERE email LIKE "${email}"
-            AND password LIKE "${hashedPassword}"`;
+            WHERE email = ?
+            AND password = ?`;
   },
 
-  addToken: (userId: number | string, token: string, maxAge: number) => {
+  addToken: () => {
     return `INSERT INTO tokens
             (user_id, token, max_age)
-            VALUES ("${userId}", "${token}", "${maxAge}")`;
+            VALUES (?, ?, ?)`;
   },
 
-  getIdByToken: (token: string | string[] | undefined) => {
+  getIdByToken: () => {
     return `SELECT user_id FROM tokens
-            WHERE token LIKE "${token}"`;
+            WHERE token = ?`;
   },
 
-  getAll: (dbName: string) => {
-    return `SELECT * FROM ${dbName}`;
+  getAll: () => {
+    return `SELECT * FROM ?`;
   },
 };
 

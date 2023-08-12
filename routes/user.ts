@@ -39,6 +39,10 @@ const {
   addAccount,
 } = queries;
 
+interface SessionData {
+  userId?: number; // Add the properties you want here
+}
+
 interface DatabaseEntry {
   id?: number;
   first_name?: string;
@@ -76,6 +80,13 @@ router.post("/register", async (req, res) => {
     return;
   }
 
+  for (let key in req.body) {
+    if (req.body[key].includes("%")) {
+      res.send("Hacker identified!");
+      return;
+    }
+  }
+
   //   destructuring the body
   const { firstName, lastName, number, email, dob, password } = req.body;
 
@@ -86,40 +97,46 @@ router.post("/register", async (req, res) => {
 
   // implementing the query
   try {
-    await asyncMySQL(
-      addUser(firstName, lastName, number, email, dob, hashedPassword)
-    );
+    await asyncMySQL(addUser(), [
+      firstName,
+      lastName,
+      number,
+      email,
+      dob,
+      hashedPassword,
+    ]);
 
     // automatically creating an account for the user
     // implementing the query
 
     try {
       const { accountNumber, sortCode } = await accountDetails();
-      const results = await asyncMySQL(checkUserCreds(email, hashedPassword));
+      const results = await asyncMySQL(checkUserCreds(), [
+        email,
+        hashedPassword,
+      ]);
 
       const userId = results[0].id;
 
       // console.log(userId);
 
-      const sqlResponse = await asyncMySQL(
-        addAccount(
-          "current account",
-          accountNumber,
-          sortCode,
-          "gbp",
-          "british pound",
-          "£",
-          "UK",
-          "0",
-          String(userId)
-        )
-      );
+      const sqlResponse = await asyncMySQL(addAccount(), [
+        "current account",
+        accountNumber,
+        sortCode,
+        "gbp",
+        "british pound",
+        "£",
+        "UK",
+        "0",
+        String(userId),
+      ]);
 
       // notifying the user of successful result
       res.send({ status: 1, message: "User added" });
       return;
     } catch (e) {
-      // console.log(e);
+      console.log(e);
       res.send({ status: 0, message: "something wrong" });
     }
     return;
@@ -127,7 +144,7 @@ router.post("/register", async (req, res) => {
     // error message to the front
     res.send({
       status: 0,
-      reason: (error as any)?.sqlMessage || "Something wrong",
+      reason: "Something wrong",
     });
     return;
   }
@@ -153,6 +170,13 @@ router.post("/login", async (req, res) => {
     res.send({ status: 0, reason: "something gone wrong" });
   }
 
+  for (let key in req.body) {
+    if (req.body[key].includes("%")) {
+      res.send("Hacker identified!");
+      return;
+    }
+  }
+
   //   destructuring the body
   const { email, password } = req.body;
 
@@ -165,10 +189,10 @@ router.post("/login", async (req, res) => {
   // implementing the query
   try {
     // return something if there is amatch
-    const results = await asyncMySQL(checkUserCreds(email, hashedPassword));
+    const results = await asyncMySQL(checkUserCreds(), [email, hashedPassword]);
 
     // if there is something, generate a token
-    if (results.length > 0) {
+    if (results.length === 1) {
       // generating a token
       // const token = genRandomString(128);
 
@@ -198,7 +222,7 @@ router.post("/login", async (req, res) => {
     // send the response to the front
     res.send({
       status: 0,
-      reason: (error as any)?.sqlMessage || "Something wrong",
+      reason: "Something wrong",
     });
     return;
   }
@@ -207,7 +231,7 @@ router.post("/login", async (req, res) => {
 
 // LOG OUT POST ROUTE
 router.post("/logout", (req, res) => {
-  delete req.session.userId;
+  delete (req.session as any).userId;
 
   req.session.destroy((error) => {
     if (error) {

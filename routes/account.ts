@@ -47,10 +47,11 @@ interface DatabaseEntry {
 // GET ROUTE:
 // get a specific account router
 router.get("/", async (req, res) => {
+  const userId = (req.session as any).userId;
   // console.log(req.session);
 
   // Check if the current user is authorized to access the account
-  if (!req.session.userId) {
+  if (!userId) {
     res.send({ status: 0, reason: "Unauthorised" });
     return;
   }
@@ -58,8 +59,10 @@ router.get("/", async (req, res) => {
   try {
     // ask sql for data
     // returns an array of results
+
     const results = (await asyncMySQL(
-      `SELECT * FROM accounts WHERE user_id LIKE "${req.session.userId}"`
+      `SELECT * FROM accounts WHERE user_id = ?`,
+      [userId]
     )) as DatabaseEntry[];
 
     delete results[0].id;

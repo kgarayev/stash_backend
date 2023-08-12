@@ -48,10 +48,11 @@ interface DatabaseEntry {
 // // GET ROUTE:
 // // get a specific transaction router
 router.get("/", async (req, res) => {
+  const userId = (req.session as any).userId;
   // console.log(req.session);
 
   // Check if the current user is authorized to access the account
-  if (!req.session.userId) {
+  if (!userId) {
     res.send({ status: 0, reason: "Unauthorised" });
     return;
   }
@@ -60,7 +61,8 @@ router.get("/", async (req, res) => {
   // returns an array of results
   try {
     const results = (await asyncMySQL(
-      `SELECT * FROM transactions WHERE account_id IN (SELECT id FROM accounts WHERE user_id LIKE "${req.session.userId}")`
+      `SELECT * FROM transactions WHERE account_id IN (SELECT id FROM accounts WHERE user_id = ?)`,
+      [userId]
     )) as DatabaseEntry[];
 
     // check if the results are there
@@ -83,6 +85,7 @@ router.get("/", async (req, res) => {
 router.post("/receive", async (req, res) => {
   // just console log the body
   // console.log(req.body);
+  const userId = (req.session as any).userId;
 
   let debitErrors = await validate(req.body, "debit");
 
@@ -99,7 +102,8 @@ router.post("/receive", async (req, res) => {
   const { amount } = req.body;
 
   const accountId = (await asyncMySQL(
-    `SELECT id FROM accounts WHERE user_id LIKE "${req.session.userId}"`
+    `SELECT id FROM accounts WHERE user_id = ?`,
+    [userId]
   )) as any;
 
   // console.log(accountId[0].id);
@@ -125,17 +129,16 @@ router.post("/receive", async (req, res) => {
 
   // implementing the query
   try {
-    await asyncMySQL(
-      addTransaction(
-        transaction.type,
-        transaction.details,
-        amount,
-        String(transaction.accountId)
-      )
-    );
+    await asyncMySQL(addTransaction(), [
+      transaction.type,
+      transaction.details,
+      amount,
+      String(transaction.accountId),
+    ]);
 
     const result = await asyncMySQL(
-      `UPDATE accounts SET balance = balance + "${amount}" WHERE id LIKE "${transaction.accountId}"`
+      `UPDATE accounts SET balance = balance + ? WHERE id = ?`,
+      [amount, transaction.accountId]
     );
 
     console.log(result);
@@ -155,6 +158,7 @@ router.post("/receive", async (req, res) => {
 router.post("/pay", async (req, res) => {
   // just console log the body
   // console.log(req.body);
+  const userId = (req.session as any).userId;
 
   let paymentErrors = await validate(req.body, "pay");
 
@@ -173,7 +177,8 @@ router.post("/pay", async (req, res) => {
   const { amount, payeeName } = req.body;
 
   const accountId = (await asyncMySQL(
-    `SELECT id FROM accounts WHERE user_id LIKE "${req.session.userId}"`
+    `SELECT id FROM accounts WHERE user_id = ?`,
+    [userId]
   )) as any;
 
   // console.log(accountId[0].id);
@@ -200,7 +205,8 @@ router.post("/pay", async (req, res) => {
   // implementing the query
   try {
     const rawResult = await asyncMySQL(
-      `UPDATE accounts SET balance = balance - "${amount}" WHERE id LIKE "${transaction.accountId}" AND balance >= "${amount}"`
+      `UPDATE accounts SET balance = balance - ? WHERE id = ? AND balance >= ?`,
+      [amount, transaction.accountId, amount]
     );
 
     const result = rawResult as unknown as OkPacket;
@@ -216,14 +222,12 @@ router.post("/pay", async (req, res) => {
       return;
     }
 
-    await asyncMySQL(
-      addTransaction(
-        transaction.type,
-        transaction.details,
-        amount,
-        String(transaction.accountId)
-      )
-    );
+    await asyncMySQL(addTransaction(), [
+      transaction.type,
+      transaction.details,
+      amount,
+      String(transaction.accountId),
+    ]);
 
     // notifying the front of successful result
     res.send({ status: 1, message: "Transaction added" });
