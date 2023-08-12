@@ -55,16 +55,6 @@ const queries = {
         )`;
   },
 
-  // createSessionsTable: () => {
-  //   return `CREATE TABLE IF NOT EXISTS sessions (
-  //     id INT(11) PRIMARY KEY AUTO_INCREMENT UNIQUE,
-  //     user_id INT(11) NOT NULL,
-  //     data VARCHAR(128) NOT NULL,
-  //     entry_date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  //     expires INT(11) NOT NULL
-  // )`;
-  // },
-
   //   add user query
   addUser: () => {
     return `INSERT INTO users (first_name, last_name, number, email, dob, password_hash) 

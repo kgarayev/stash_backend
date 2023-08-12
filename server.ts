@@ -1,12 +1,8 @@
 // importing express framework and types
 import express, { Request, Response, NextFunction } from "express";
-import cookieParser from "cookie-parser";
 
 import dotenv from "dotenv";
 dotenv.config();
-
-// import session
-import session from "express-session";
 
 // importing check token middleware function
 import { authorise } from "./middleware/auth";
@@ -24,11 +20,6 @@ import helmet from "helmet";
 
 // import middleware functions
 import { logging } from "./middleware/logging";
-
-// import simpleAuth from "./middleware/simpleAuth";
-
-// importing the random id generator function
-// import { genRandomString } from "./utils/math";
 
 // to temporarily fix an error
 import cors from "cors";
@@ -101,31 +92,6 @@ myApp.use(express.json());
 // a logging middleware
 myApp.use(logging);
 
-const sessionSecret = process.env.SESSION_SECRET;
-
-if (!sessionSecret) {
-  throw new Error("SESSION_SECRET must be set!");
-}
-
-myApp.use(cookieParser());
-
-// Use express-session
-myApp.use(
-  session({
-    name: "connect.sid",
-    secret: sessionSecret,
-    resave: true,
-    saveUninitialized: true,
-    rolling: true,
-    cookie: {
-      httpOnly: false,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
-      maxAge: 15 * 60 * 1000, // session will expire after 15 minutes of inactivity
-    },
-  })
-);
-
 // API KEY validation middleware
 // myApp.use(simpleAuth);
 
@@ -133,10 +99,10 @@ myApp.use(
 myApp.use("/user", userRouter);
 
 // view accounts route middleware
-myApp.use("/account", accountRouter);
+myApp.use("/account", authorise, accountRouter);
 
 // view transactions route middleware
-myApp.use("/transaction", transactionRouter);
+myApp.use("/transaction", authorise, transactionRouter);
 
 // custom 404
 myApp.use((req: Request, res: Response, next: NextFunction) => {

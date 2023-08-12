@@ -2,7 +2,8 @@
 // import express
 import express from "express";
 
-import cookieParser from "cookie-parser";
+import dotenv from "dotenv";
+dotenv.config();
 
 // import router
 const router = express.Router();
@@ -20,7 +21,8 @@ import { asyncMySQL } from "../database/connection";
 import { queries } from "../database/queries";
 import { OkPacket } from "mysql";
 
-const { addTransaction, deleteQuery, updateQuery, getQuery } = queries;
+const { addTransaction, deleteQuery, updateQuery, getQuery, getIdByToken } =
+  queries;
 
 interface DatabaseEntry {
   id?: number;
@@ -51,14 +53,11 @@ interface DatabaseEntry {
 // // GET ROUTE:
 // // get a specific transaction router
 router.get("/", async (req, res) => {
-  const userId = (req.session as any).userId;
-  // console.log(req.session);
+  const token = req.headers.token;
 
-  // Check if the current user is authorized to access the account
-  // if (!userId) {
-  //   res.send({ status: 0, reason: "Unauthorised" });
-  //   return;
-  // }
+  const results = await asyncMySQL(getIdByToken(), [token]);
+
+  const userId = results[0].user_id;
 
   // ask sql for data
   // returns an array of results
@@ -87,8 +86,13 @@ router.get("/", async (req, res) => {
 // // add transaction router
 router.post("/receive", async (req, res) => {
   // just console log the body
-  // console.log(req.body);
-  const userId = (req.session as any).userId;
+  console.log(req.body);
+
+  const token = req.headers.token;
+
+  const results = await asyncMySQL(getIdByToken(), [token]);
+
+  const userId = results[0].user_id;
 
   for (let key in req.body) {
     if (typeof req.body[key] === "string" && req.body[key].includes("%")) {
@@ -100,7 +104,7 @@ router.post("/receive", async (req, res) => {
   let debitErrors = await validate(req.body, "debit");
 
   // log local errors if any
-  // console.log(debitErrors);
+  console.log(debitErrors);
 
   // notify about validation errors and abort if any
   if (debitErrors) {
@@ -129,7 +133,7 @@ router.post("/receive", async (req, res) => {
   let transactionErrors = await validate(transaction, "addTransaction");
 
   // log local errors if any
-  // console.log(transactionErrors);
+  console.log(transactionErrors);
 
   // notify about validation errors and abort if any
   if (transactionErrors) {
@@ -167,8 +171,13 @@ router.post("/receive", async (req, res) => {
 // // add transaction router
 router.post("/pay", async (req, res) => {
   // just console log the body
-  // console.log(req.body);
-  const userId = (req.session as any).userId;
+  console.log(req.body);
+
+  const token = req.headers.token;
+
+  const results = await asyncMySQL(getIdByToken(), [token]);
+
+  const userId = results[0].user_id;
 
   for (let key in req.body) {
     if (typeof req.body[key] === "string" && req.body[key].includes("%")) {
@@ -198,7 +207,7 @@ router.post("/pay", async (req, res) => {
     [userId]
   )) as any;
 
-  // console.log(accountId[0].id);
+  console.log(accountId[0].id);
 
   const transaction = {
     type: "sent",
@@ -211,7 +220,7 @@ router.post("/pay", async (req, res) => {
   let transactionErrors = await validate(transaction, "addTransaction");
 
   // log local errors if any
-  // console.log(transactionErrors);
+  console.log(transactionErrors);
 
   // notify about validation errors and abort if any
   if (transactionErrors) {
@@ -255,102 +264,6 @@ router.post("/pay", async (req, res) => {
     return;
   }
 });
-
-// // DELETE ROUTE:
-// // delete a transaction router
-// router.delete("/:id", async (req, res) => {
-//   // converting id from string to number
-//   const id = Number(req.params.id);
-
-//   // check if the id is number
-//   if (Number.isNaN(id)) {
-//     res.send({ status: 0, reason: "Invalid id" });
-//     return;
-//   }
-
-//   try {
-//     // run the query
-//     const result = (await asyncMySQL(deleteQuery("transactions", id))) as any;
-
-//     console.log(result);
-
-//     // check if the id exists and the transaction has been removed
-//     if (result.affectedRows === 1) {
-//       // send the successful update to the front
-//       res.send({ status: 1, message: "Transaction removed" });
-//       return;
-//     }
-//     // if not, notify the front
-//     res.send({ status: 0, message: "Invalid id" });
-//     return;
-//   } catch (error) {
-//     // catch the error
-//     res.send({ status: 0, reason: (error as any)?.sqlMessage });
-//     return;
-//   }
-// });
-
-// // UPDATE ROUTE:
-// // router to update the transaction information
-// router.patch("/:id", async (req, res) => {
-//   // convert id from string to number
-//   const id = Number(req.params.id);
-
-//   // validate
-//   let localErrors = await validate(req.body, "updateTransaction");
-
-//   // logging local errors
-//   // console.log(localErrors);
-
-//   // checking if local errors exist
-//   if (localErrors) {
-//     res.send({ status: 0, reason: "Incomplete or invalid request" });
-//     return;
-//   }
-
-//   //   destructuring the body
-//   const { type, details, amount, accountId } = req.body;
-
-//   try {
-//     // First, check if transaction with this id exists
-//     const results = (await asyncMySQL(
-//       `SELECT * FROM transactions WHERE id LIKE "${id}"`
-//     )) as DatabaseEntry[];
-
-//     // If no transaction exists with this id, return an error
-//     if (results.length === 0) {
-//       res.send({ status: 0, message: "Invalid transaction id" });
-//       return;
-//     }
-
-//     //   for security we have repetition
-//     if (type && typeof type === "string") {
-//       await asyncMySQL(updateQuery("transactions", "type", type, id));
-//     }
-
-//     if (details && typeof details === "string") {
-//       await asyncMySQL(updateQuery("transactions", "details", details, id));
-//     }
-
-//     if (amount && typeof Number(amount) === "number") {
-//       await asyncMySQL(updateQuery("transactions", "amount", amount, id));
-//     }
-
-//     if (accountId && typeof Number(accountId) === "number") {
-//       await asyncMySQL(
-//         updateQuery("transactions", "account_id", accountId, id)
-//       );
-//     }
-
-//     // sending the final update to the front
-//     res.send({ status: 1, message: "Transaction updated" });
-//     return;
-//   } catch (error) {
-//     // catch errors if any
-//     res.send({ status: 0, reason: (error as any)?.sqlMessage });
-//     return;
-//   }
-// });
 
 // exporting the router
 export { router };
