@@ -114,8 +114,8 @@ myApp.use(
   session({
     name: "connect.sid",
     secret: sessionSecret,
-    resave: false,
-    saveUninitialized: false,
+    resave: true,
+    saveUninitialized: true,
     rolling: true,
     cookie: {
       httpOnly: false,
