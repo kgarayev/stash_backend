@@ -11,7 +11,7 @@ const queries = {
           email VARCHAR(64) NOT NULL UNIQUE,
           dob DATE NOT NULL,
           password_hash VARCHAR(64) NOT NULL,
-          created DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+          created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
       )`;
   },
 
@@ -28,7 +28,7 @@ const queries = {
           currency_country VARCHAR(64) NOT NULL,
           balance DECIMAL(10,2) NOT NULL,
           user_id INT(11) NOT NULL,
-          created DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+          created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
       )`;
   },
 
@@ -38,7 +38,7 @@ const queries = {
           id INT(11) PRIMARY KEY AUTO_INCREMENT UNIQUE,
           type VARCHAR(64) NOT NULL,
           details VARCHAR(64) NOT NULL,
-          created DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+          created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
           amount DECIMAL(10, 2) NOT NULL,
           account_id INT(11) NOT NULL
       )`;
