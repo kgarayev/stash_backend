@@ -87,6 +87,13 @@ router.post("/receive", async (req, res) => {
   // console.log(req.body);
   const userId = (req.session as any).userId;
 
+  for (let key in req.body) {
+    if (req.body[key].includes("%")) {
+      res.send("Hacker identified!");
+      return;
+    }
+  }
+
   let debitErrors = await validate(req.body, "debit");
 
   // log local errors if any
@@ -159,6 +166,13 @@ router.post("/pay", async (req, res) => {
   // just console log the body
   // console.log(req.body);
   const userId = (req.session as any).userId;
+
+  for (let key in req.body) {
+    if (req.body[key].includes("%")) {
+      res.send("Hacker identified!");
+      return;
+    }
+  }
 
   let paymentErrors = await validate(req.body, "pay");
 

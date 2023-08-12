@@ -153,6 +153,13 @@ router.post("/register", async (req, res) => {
 // LOGIN POST ROUTE
 // log user in
 router.post("/login", async (req, res) => {
+  for (let key in req.body) {
+    if (req.body[key].includes("%")) {
+      res.send("Hacker identified!");
+      return;
+    }
+  }
+
   try {
     // validate
     let localErrors = await validate(req.body, "loginUser");
@@ -232,6 +239,13 @@ router.post("/login", async (req, res) => {
 // LOG OUT POST ROUTE
 router.post("/logout", (req, res) => {
   delete (req.session as any).userId;
+
+  for (let key in req.body) {
+    if (req.body[key].includes("%")) {
+      res.send("Hacker identified!");
+      return;
+    }
+  }
 
   req.session.destroy((error) => {
     if (error) {
