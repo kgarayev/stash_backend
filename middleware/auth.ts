@@ -35,6 +35,29 @@ const authorise = async (req: Request, res: Response, next: NextFunction) => {
   } else {
     // console.log("not authorised");
 
+    //   // get the token from the cookies instead of the headers
+    const token = req.cookies.token;
+
+    if (!token) {
+      res.send({ status: 0, reason: "no token provided" });
+      return;
+    }
+
+    const results = await asyncMySQL(getIdByToken(), [token]);
+
+    console.log(results);
+
+    if (results.length > 0) {
+      // attach token id to the request
+      req.validatedUserId = results[0].user_id;
+      req.session.userId = results[0].user_id; // Store user ID in session
+
+      next();
+      return;
+    }
+
+    res.send({ status: 0, reason: "bad token" });
+
     delete req.session.userId;
 
     req.session.destroy((error) => {
@@ -49,28 +72,6 @@ const authorise = async (req: Request, res: Response, next: NextFunction) => {
     res.send({ status: 0, reason: "Not authorised" });
     return;
   }
-  //   // get the token from the cookies instead of the headers
-  //   const token = req.cookies.token;
-
-  //   if (!token) {
-  //     res.send({ status: 0, reason: "no token provided" });
-  //     return;
-  //   }
-
-  // const results = await asyncMySQL(getIdByToken(token));
-
-  // console.log(results);
-
-  // if (results.length > 0) {
-  //   // attach token id to the request
-  //   req.validatedUserId = results[0].user_id;
-  //   req.session.userId = results[0].user_id; // Store user ID in session
-
-  //   next();
-  //   return;
-  // }
-
-  // res.send({ status: 0, reason: "bad token" });
 };
 
 export { authorise };
