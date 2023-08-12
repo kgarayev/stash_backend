@@ -2,6 +2,8 @@
 // import express
 import express from "express";
 
+import cookieParser from "cookie-parser";
+
 // import router
 const router = express.Router();
 

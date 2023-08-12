@@ -1,6 +1,6 @@
 // importing express framework and types
 import express, { Request, Response, NextFunction } from "express";
-// import cookieParser from "cookie-parser";
+import cookieParser from "cookie-parser";
 
 import dotenv from "dotenv";
 dotenv.config();
@@ -101,6 +101,8 @@ const sessionSecret = process.env.SESSION_SECRET;
 if (!sessionSecret) {
   throw new Error("SESSION_SECRET must be set!");
 }
+
+myApp.use(cookieParser());
 
 // Use express-session
 myApp.use(

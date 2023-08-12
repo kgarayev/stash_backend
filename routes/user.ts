@@ -2,6 +2,8 @@
 // import express
 import express from "express";
 
+import cookieParser from "cookie-parser";
+
 import session from "express-session";
 
 // import dotenv
