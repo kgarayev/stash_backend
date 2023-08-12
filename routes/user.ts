@@ -132,6 +132,8 @@ router.post("/register", async (req, res) => {
         String(userId),
       ]);
 
+      console.log(sqlResponse);
+
       // notifying the user of successful result
       res.send({ status: 1, message: "User added" });
       return;
@@ -142,6 +144,8 @@ router.post("/register", async (req, res) => {
     return;
   } catch (error) {
     // error message to the front
+    console.log(error);
+
     res.send({
       status: 0,
       reason: "Something wrong",
