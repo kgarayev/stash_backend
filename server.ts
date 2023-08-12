@@ -68,13 +68,18 @@ myApp.use(
 // disable fingerprinting
 myApp.disable("x-powered-by");
 
-const allowedOrigins = ["http://localhost:5173", "http://127.0.0.1:5173"];
+const allowedOrigins = [
+  "http://localhost:5173",
+  "http://127.0.0.1:5173",
+  `${process.env.FRONT_LINK}`,
+];
 
 myApp.use(
   cors({
     origin: allowedOrigins,
     credentials: true,
     exposedHeaders: ["Content-Length", "Token"],
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH"], // allowed HTTP methods
   })
 );
 
