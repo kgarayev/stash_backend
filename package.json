@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "start": "node ./bin/www",
-    "dev": "nodemon server.ts"
+    "start-app": "ts-node server.ts"
   },
   "dependencies": {
     "@types/cors": "^2.8.13",
