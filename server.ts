@@ -42,6 +42,9 @@ import { router as transactionRouter } from "./routes/transaction";
 // creating a new instance of express
 const myApp = express();
 
+// Tell Express to trust the X-Forwarded-For header
+myApp.set("trust proxy", 1);
+
 // Middleware section START
 
 myApp.use(limiter);
