@@ -166,6 +166,8 @@ router.post("/pay", async (req, res) => {
     return;
   }
 
+  console.log("validated");
+
   //   destructuring the body
   const { amount, payeeName } = req.body;
 
