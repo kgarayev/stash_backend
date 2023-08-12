@@ -79,7 +79,7 @@ router.get("/", async (req, res) => {
 
 // // POST ROUTE:
 // // add transaction router
-router.post("/", async (req, res) => {
+router.post("/receive", async (req, res) => {
   // just console log the body
   // console.log(req.body);
 
@@ -135,6 +135,78 @@ router.post("/", async (req, res) => {
 
     const result = await asyncMySQL(
       `UPDATE accounts SET balance = balance + "${amount}" WHERE id LIKE "${transaction.accountId}"`
+    );
+
+    console.log(result);
+
+    // notifying the front of successful result
+    res.send({ status: 1, message: "Transaction added" });
+    return;
+  } catch (error) {
+    // error message to the front
+    res.send({ status: 0, reason: (error as any)?.sqlMessage });
+    return;
+  }
+});
+
+// // POST ROUTE:
+// // add transaction router
+router.post("/pay", async (req, res) => {
+  // just console log the body
+  // console.log(req.body);
+
+  let paymentErrors = await validate(req.body, "pay");
+
+  // log local errors if any
+  // console.log(debitErrors);
+
+  // notify about validation errors and abort if any
+  if (paymentErrors) {
+    res.send({ status: 0, reason: "Incomplete or invalid request" });
+    return;
+  }
+
+  //   destructuring the body
+  const { amount, payeeName } = req.body;
+
+  const accountId = (await asyncMySQL(
+    `SELECT id FROM accounts WHERE user_id LIKE "${req.session.userId}"`
+  )) as any;
+
+  // console.log(accountId[0].id);
+
+  const transaction = {
+    type: "sent",
+    details: payeeName,
+    amount,
+    accountId: Number(accountId[0].id),
+  };
+
+  // validate
+  let transactionErrors = await validate(transaction, "addTransaction");
+
+  // log local errors if any
+  // console.log(transactionErrors);
+
+  // notify about validation errors and abort if any
+  if (transactionErrors) {
+    res.send({ status: 0, reason: "Incomplete or invalid request" });
+    return;
+  }
+
+  // implementing the query
+  try {
+    await asyncMySQL(
+      addTransaction(
+        transaction.type,
+        transaction.details,
+        amount,
+        String(transaction.accountId)
+      )
+    );
+
+    const result = await asyncMySQL(
+      `UPDATE accounts SET balance = balance - "${amount}" WHERE id LIKE "${transaction.accountId}"`
     );
 
     console.log(result);
