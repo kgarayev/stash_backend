@@ -16,6 +16,7 @@ import { asyncMySQL } from "../database/connection";
 
 // import queries
 import { queries } from "../database/queries";
+import { OkPacket } from "mysql";
 
 const { addTransaction, deleteQuery, updateQuery, getQuery } = queries;
 
@@ -198,6 +199,23 @@ router.post("/pay", async (req, res) => {
 
   // implementing the query
   try {
+    const rawResult = await asyncMySQL(
+      `UPDATE accounts SET balance = balance - "${amount}" WHERE id LIKE "${transaction.accountId}" AND balance >= "${amount}"`
+    );
+
+    const result = rawResult as unknown as OkPacket;
+
+    console.log(result);
+
+    if (result.changedRows !== 1) {
+      // Send an error response if the balance wasn't updated.
+      res.send({
+        status: 0,
+        reason: "Transaction failed, possibly due to insufficient funds",
+      });
+      return;
+    }
+
     await asyncMySQL(
       addTransaction(
         transaction.type,
@@ -207,18 +225,12 @@ router.post("/pay", async (req, res) => {
       )
     );
 
-    const result = await asyncMySQL(
-      `UPDATE accounts SET balance = balance - "${amount}" WHERE id LIKE "${transaction.accountId}"`
-    );
-
-    console.log(result);
-
     // notifying the front of successful result
     res.send({ status: 1, message: "Transaction added" });
     return;
   } catch (error) {
     // error message to the front
-    res.send({ status: 0, reason: (error as any)?.sqlMessage });
+    res.send({ status: 0, reason: "Something has gone wrong" });
     return;
   }
 });
