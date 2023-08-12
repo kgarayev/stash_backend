@@ -22,8 +22,8 @@ const { getIdByToken } = queries;
 
 // create a function that checks the token provided by the client
 const authorise = async (req: Request, res: Response, next: NextFunction) => {
-  console.log(req.session);
-  console.log(req.session.userId);
+  // console.log(req.session);
+  // console.log(req.session.userId);
 
   // Check for user ID in session first
   if (req.session?.userId) {
@@ -33,14 +33,14 @@ const authorise = async (req: Request, res: Response, next: NextFunction) => {
     next();
     return;
   } else {
-    console.log("not authorised");
+    // console.log("not authorised");
 
     delete req.session.userId;
 
     req.session.destroy((error) => {
       if (error) {
         // Handle error, e.g., send a 500 status or log the error
-        console.error("Session destroy error:", error);
+        // console.error("Session destroy error:", error);
         res.send({ status: 0, message: "Internal Server Error" });
         return;
       }

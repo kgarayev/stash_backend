@@ -158,7 +158,7 @@ router.post("/pay", async (req, res) => {
   let paymentErrors = await validate(req.body, "pay");
 
   // log local errors if any
-  // console.log(debitErrors);
+  console.log("errors are", paymentErrors);
 
   // notify about validation errors and abort if any
   if (paymentErrors) {

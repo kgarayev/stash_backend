@@ -99,7 +99,7 @@ router.post("/register", async (req, res) => {
 
       const userId = results[0].id;
 
-      console.log(userId);
+      // console.log(userId);
 
       const sqlResponse = await asyncMySQL(
         addAccount(
@@ -119,7 +119,7 @@ router.post("/register", async (req, res) => {
       res.send({ status: 1, message: "User added" });
       return;
     } catch (e) {
-      console.log(e);
+      // console.log(e);
       res.send({ status: 0, message: "something wrong" });
     }
     return;
@@ -141,7 +141,7 @@ router.post("/login", async (req, res) => {
     let localErrors = await validate(req.body, "loginUser");
 
     // log local errors if any
-    console.log("errors: ", localErrors);
+    // console.log("errors: ", localErrors);
 
     // notify about validation errors and abort if any
     if (localErrors) {
@@ -149,7 +149,7 @@ router.post("/login", async (req, res) => {
       return;
     }
   } catch (e) {
-    console.log(e);
+    // console.log(e);
     res.send({ status: 0, reason: "something gone wrong" });
   }
 
@@ -174,7 +174,7 @@ router.post("/login", async (req, res) => {
 
       (req.session as any).userId = results[0].id;
       req.session.save();
-      console.log(req.session);
+      // console.log(req.session);
 
       // max age in milliseconds = 15 mins
       // const maxAge = 900000;
@@ -193,7 +193,7 @@ router.post("/login", async (req, res) => {
     }
   } catch (error) {
     // error message to the front
-    console.log(error);
+    // console.log(error);
 
     // send the response to the front
     res.send({
@@ -212,7 +212,7 @@ router.post("/logout", (req, res) => {
   req.session.destroy((error) => {
     if (error) {
       // Handle error, e.g., send a 500 status or log the error
-      console.error("Session destroy error:", error);
+      // console.error("Session destroy error:", error);
       res.send({ status: 0, message: "Internal Server Error" });
       return;
     }
@@ -220,10 +220,10 @@ router.post("/logout", (req, res) => {
     // Clear the client-side cookie
     console.log("Attempting to clear the cookie...");
     res.clearCookie("connect.sid", { path: "/" });
-    console.log("Cookie should be cleared now.");
+    // console.log("Cookie should be cleared now.");
 
-    console.log(req.session);
-    console.log("session deleted");
+    // console.log(req.session);
+    // console.log("session deleted");
 
     // Continue with your logout logic if there's no error
     res.send({ status: 1, message: "Logged out successfully" });
