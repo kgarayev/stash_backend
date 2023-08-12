@@ -18,7 +18,8 @@ const {
 // this driver does not support promises
 // need to create our own wrapper / promisify this
 // connect to RDMS without specifying the database itself
-const myConnection = mysql.createConnection({
+const pool = mysql.createPool({
+  connectionLimit: 10,
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
   host: process.env.DB_HOST,
@@ -32,7 +33,7 @@ const myConnection = mysql.createConnection({
 // returns an array
 const asyncMySQL = (query: string, params: any[]): Promise<any[]> => {
   return new Promise((resolve, reject) => {
-    myConnection.query(query, params, (error, results) => {
+    pool.query(query, params, (error, results) => {
       if (error) {
         reject(error);
         return;
