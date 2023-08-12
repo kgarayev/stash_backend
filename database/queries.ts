@@ -67,7 +67,7 @@ const queries = {
 
   //   add user query
   addUser: () => {
-    return `INSERT INTO users (first_name, last_name, number, email, dob, password) 
+    return `INSERT INTO users (first_name, last_name, number, email, dob, password_hash) 
               VALUES (
                   ?, 
                   ?, 
@@ -126,7 +126,7 @@ const queries = {
   checkUserCreds: () => {
     return `SELECT id FROM users
             WHERE email = ?
-            AND password = ?`;
+            AND password_hash = ?`;
   },
 
   addToken: () => {

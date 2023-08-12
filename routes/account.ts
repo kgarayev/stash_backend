@@ -27,6 +27,7 @@ interface DatabaseEntry {
   email?: string;
   dob?: Date | string;
   password?: string;
+  password_hash?: string;
   created?: Date | string;
   account_name?: string;
   account_number?: number;
