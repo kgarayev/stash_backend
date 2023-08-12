@@ -81,7 +81,7 @@ router.post("/register", async (req, res) => {
   }
 
   for (let key in req.body) {
-    if (req.body[key].includes("%")) {
+    if (typeof req.body[key] === "string" && req.body[key].includes("%")) {
       res.send("Hacker identified!");
       return;
     }
@@ -154,7 +154,7 @@ router.post("/register", async (req, res) => {
 // log user in
 router.post("/login", async (req, res) => {
   for (let key in req.body) {
-    if (req.body[key].includes("%")) {
+    if (typeof req.body[key] === "string" && req.body[key].includes("%")) {
       res.send("Hacker identified!");
       return;
     }
@@ -241,12 +241,11 @@ router.post("/logout", (req, res) => {
   delete (req.session as any).userId;
 
   for (let key in req.body) {
-    if (req.body[key].includes("%")) {
+    if (typeof req.body[key] === "string" && req.body[key].includes("%")) {
       res.send("Hacker identified!");
       return;
     }
   }
-
   req.session.destroy((error) => {
     if (error) {
       // Handle error, e.g., send a 500 status or log the error

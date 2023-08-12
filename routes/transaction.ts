@@ -88,7 +88,7 @@ router.post("/receive", async (req, res) => {
   const userId = (req.session as any).userId;
 
   for (let key in req.body) {
-    if (req.body[key].includes("%")) {
+    if (typeof req.body[key] === "string" && req.body[key].includes("%")) {
       res.send("Hacker identified!");
       return;
     }
@@ -168,7 +168,7 @@ router.post("/pay", async (req, res) => {
   const userId = (req.session as any).userId;
 
   for (let key in req.body) {
-    if (req.body[key].includes("%")) {
+    if (typeof req.body[key] === "string" && req.body[key].includes("%")) {
       res.send("Hacker identified!");
       return;
     }
