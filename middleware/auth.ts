@@ -22,55 +22,34 @@ const { getIdByToken } = queries;
 
 // create a function that checks the token provided by the client
 const authorise = async (req: Request, res: Response, next: NextFunction) => {
-  // console.log(req.session);
-  // console.log(req.session.userId);
+  try {
+    if (req.session?.userId) {
+      req.validatedUserId = req.session.userId;
+      return next();
+    }
 
-  // Check for user ID in session first
-  if (req.session?.userId) {
-    // console.log(req.session);
-
-    req.validatedUserId = req.session.userId;
-    next();
-    return;
-  } else {
-    // console.log("not authorised");
-
-    //   // get the token from the cookies instead of the headers
     const token = req.cookies.token;
-
     if (!token) {
-      res.send({ status: 0, reason: "no token provided" });
-      return;
+      return res.send({ status: 0, reason: "no token provided" });
     }
 
     const results = await asyncMySQL(getIdByToken(), [token]);
 
-    console.log(results);
-
     if (results.length > 0) {
-      // attach token id to the request
       req.validatedUserId = results[0].user_id;
-      req.session.userId = results[0].user_id; // Store user ID in session
-
-      next();
-      return;
+      req.session.userId = results[0].user_id;
+      return next();
+    } else {
+      req.session.destroy((error) => {
+        if (error) {
+          return res.send({ status: 0, message: "Internal Server Error" });
+        }
+      });
+      return res.send({ status: 0, reason: "Not authorised" });
     }
-
-    res.send({ status: 0, reason: "bad token" });
-
-    delete req.session.userId;
-
-    req.session.destroy((error) => {
-      if (error) {
-        // Handle error, e.g., send a 500 status or log the error
-        // console.error("Session destroy error:", error);
-        res.send({ status: 0, message: "Internal Server Error" });
-        return;
-      }
-    });
-
-    res.send({ status: 0, reason: "Not authorised" });
-    return;
+  } catch (error) {
+    console.error("Error in authorise middleware:", error);
+    return res.send({ status: 0, message: "Internal Server Error" });
   }
 };
 
