@@ -133,10 +133,10 @@ myApp.use(
 myApp.use("/user", userRouter);
 
 // view accounts route middleware
-myApp.use("/account", authorise, accountRouter);
+myApp.use("/account", accountRouter);
 
 // view transactions route middleware
-myApp.use("/transaction", authorise, transactionRouter);
+myApp.use("/transaction", transactionRouter);
 
 // custom 404
 myApp.use((req: Request, res: Response, next: NextFunction) => {
