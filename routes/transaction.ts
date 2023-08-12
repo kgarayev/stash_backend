@@ -55,10 +55,10 @@ router.get("/", async (req, res) => {
   // console.log(req.session);
 
   // Check if the current user is authorized to access the account
-  if (!userId) {
-    res.send({ status: 0, reason: "Unauthorised" });
-    return;
-  }
+  // if (!userId) {
+  //   res.send({ status: 0, reason: "Unauthorised" });
+  //   return;
+  // }
 
   // ask sql for data
   // returns an array of results

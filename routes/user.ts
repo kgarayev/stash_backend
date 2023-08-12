@@ -212,7 +212,7 @@ router.post("/login", async (req, res) => {
 
       (req.session as any).userId = results[0].id;
       req.session.save();
-      // console.log(req.session);
+      console.log(req.session);
 
       // max age in milliseconds = 15 mins
       const maxAge = 900000;
