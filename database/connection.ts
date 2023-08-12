@@ -46,7 +46,10 @@ const asyncMySQL = (query: string, params: any[]): Promise<any[]> => {
 const createDB = async (dbName: string) => {
   try {
     // Create the database if it doesn't exist
-    await asyncMySQL(`CREATE DATABASE IF NOT EXISTS stash`, []);
+    await asyncMySQL(
+      `CREATE DATABASE IF NOT EXISTS ${process.env.DB_NAME}`,
+      []
+    );
 
     // wrap inside the promise
     return new Promise<void>((resolve, reject) => {
@@ -68,7 +71,7 @@ const createDB = async (dbName: string) => {
 };
 
 // create a database called stash
-createDB("stash")
+createDB(`${process.env.DB_NAME}`)
   .then(async () => {
     // create the individual tables now
     // create tables createUsersTable, accounts and transactions
