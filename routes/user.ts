@@ -157,9 +157,24 @@ router.post("/register", async (req, res) => {
 // LOGIN POST ROUTE
 // log user in
 router.post("/login", async (req, res) => {
+  // Check for malicious patterns
   for (let key in req.body) {
     if (typeof req.body[key] === "string" && req.body[key].includes("%")) {
       res.send("Hacker identified!");
+      return;
+    }
+  }
+
+  // Check for token in headers
+  const token = req.headers.token;
+
+  if (token) {
+    // If token exists, verify it
+    const results = await asyncMySQL(getIdByToken(), [token]);
+
+    // If token is valid
+    if (results && results.length > 0) {
+      res.send({ status: 1, token });
       return;
     }
   }
@@ -237,6 +252,8 @@ router.post("/login", async (req, res) => {
 // LOG OUT POST ROUTE
 router.post("/logout", async (req, res) => {
   const token = req.headers.token;
+
+  console.log(token);
 
   const results = await asyncMySQL(getIdByToken(), [token]);
 

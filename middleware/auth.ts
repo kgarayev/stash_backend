@@ -31,7 +31,16 @@ const authorise = async (req: Request, res: Response, next: NextFunction) => {
     // Compare the expiry time with the current time.
     const currentDate = new Date();
     if (currentDate > expiryDate) {
-      return res.send({ status: 0, reason: "Token has expired" });
+      try {
+        const result = await asyncMySQL(`DELETE * FROM tokens WHERE token=?`, [
+          token,
+        ]);
+
+        return res.send({ status: 0, reason: "Token has expired" });
+      } catch (e) {
+        console.log("Something has gone wrong");
+        res.send({ status: 0, reason: "No results found" });
+      }
     }
 
     req.validatedUserId = results[0].user_id;
