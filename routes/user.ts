@@ -35,6 +35,7 @@ const {
   checkUserCreds,
   addToken,
   addAccount,
+  getIdByToken,
 } = queries;
 
 interface SessionData {
@@ -205,8 +206,10 @@ router.post("/login", async (req, res) => {
       // generating a token
       const token = genRandomString(128);
 
-      // max age in milliseconds = 15 mins
-      const maxAge = 900000;
+      console.log("token:", token);
+
+      // max age in milliseconds = 30 mins
+      const maxAge = 1800000;
 
       // add a token into a tokens table
       await asyncMySQL(addToken(), [results[0].id, token, maxAge]);
@@ -234,6 +237,15 @@ router.post("/login", async (req, res) => {
 // LOG OUT POST ROUTE
 router.post("/logout", async (req, res) => {
   const token = req.headers.token;
+
+  const results = await asyncMySQL(getIdByToken(), [token]);
+
+  console.log(results);
+
+  if (!results || results.length === 0) {
+    res.send({ status: 0, reason: "No user found" });
+    return;
+  }
 
   try {
     const results = await asyncMySQL(`DELETE FROM tokens WHERE token = ?`, [

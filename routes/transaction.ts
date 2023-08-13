@@ -57,6 +57,13 @@ router.get("/", async (req, res) => {
 
   const results = await asyncMySQL(getIdByToken(), [token]);
 
+  console.log(results);
+
+  if (!results || results.length === 0) {
+    res.send({ status: 0, reason: "No results found" });
+    return;
+  }
+
   const userId = results[0].user_id;
 
   // ask sql for data
@@ -91,6 +98,13 @@ router.post("/receive", async (req, res) => {
   const token = req.headers.token;
 
   const results = await asyncMySQL(getIdByToken(), [token]);
+
+  console.log(results);
+
+  if (!results || results.length === 0) {
+    res.send({ status: 0, reason: "No results found" });
+    return;
+  }
 
   const userId = results[0].user_id;
 
@@ -176,6 +190,13 @@ router.post("/pay", async (req, res) => {
   const token = req.headers.token;
 
   const results = await asyncMySQL(getIdByToken(), [token]);
+
+  console.log(results);
+
+  if (!results || results.length === 0) {
+    res.send({ status: 0, reason: "No results found" });
+    return;
+  }
 
   const userId = results[0].user_id;
 
