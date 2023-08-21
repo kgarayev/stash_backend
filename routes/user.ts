@@ -209,7 +209,7 @@ router.post("/login", async (req, res) => {
   // creating a password hash with a salt
   const hashedPassword = hash256(password + "stashSalt-2023?");
 
-  console.log(hashedPassword);
+  // console.log(hashedPassword);
 
   // implementing the query
   try {
