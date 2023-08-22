@@ -3,8 +3,8 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "node ./bin/www",
-    "start-app": "ts-node server.ts",
+    "start": "ts-node server.ts",
+    "start-app-js": "node ./bin/www",
     "dev": "nodemon server.ts"
   },
   "dependencies": {
