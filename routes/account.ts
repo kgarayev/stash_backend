@@ -54,6 +54,8 @@ interface DatabaseEntry {
 router.get("/", async (req, res) => {
   const token = req.headers.token;
 
+  let chosenItems = [0,1,2];
+
   const results = await asyncMySQL(getIdByToken(), [token]);
 
   console.log(results);
