@@ -24,7 +24,7 @@ import { logging } from "./middleware/logging";
 // to temporarily fix an error
 import cors from "cors";
 
-// importing routes
+// importing route
 // import { router as genericRouter } from "./routes/generic";
 import { router as userRouter } from "./routes/user";
 import { router as accountRouter } from "./routes/account";
