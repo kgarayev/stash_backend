@@ -1,4 +1,5 @@
 "use strict";
+// function to generate UK account number and sort code
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -36,75 +37,49 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.validate = void 0;
-var joi_1 = require("joi");
-var schema_1 = require("./schema");
-var validate = function (payload, type) { return __awaiter(void 0, void 0, void 0, function () {
-    var option, results, errors_1, errorsModified_1;
+exports.accountDetails = void 0;
+var connection_1 = require("../database/connection");
+var accountDetails = function () { return __awaiter(void 0, void 0, void 0, function () {
+    var accountNumber, sortCode, latestNumber, latestCode, e_1;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
-                option = joi_1.default.object({});
-                switch (type) {
-                    case "addUser":
-                        // call joi
-                        option = joi_1.default.object(schema_1.addUser);
-                        break;
-                    case "loginUser":
-                        // call joi
-                        option = joi_1.default.object(schema_1.loginUser);
-                        break;
-                    case "updateUser":
-                        // call joi
-                        option = joi_1.default.object(schema_1.updateUser);
-                        break;
-                    case "addAccount":
-                        // call joi
-                        option = joi_1.default.object(schema_1.addAccount);
-                        break;
-                    case "updateAccount":
-                        // call joi
-                        option = joi_1.default.object(schema_1.updateAccount);
-                        break;
-                    case "addTransaction":
-                        // call joi
-                        option = joi_1.default.object(schema_1.addTransaction);
-                        break;
-                    case "updateTransaction":
-                        // call joi
-                        option = joi_1.default.object(schema_1.updateTransaction);
-                        break;
-                    case "debit":
-                        // call joi
-                        option = joi_1.default.object(schema_1.debit);
-                        break;
-                    case "pay":
-                        // call joi
-                        option = joi_1.default.object(schema_1.pay);
-                        break;
-                    default:
-                        break;
-                }
+                console.log("hello from account details function");
+                accountNumber = "";
+                sortCode = "";
                 _a.label = 1;
             case 1:
-                _a.trys.push([1, 3, , 4]);
-                return [4 /*yield*/, option.validateAsync(payload, { abortEarly: false })];
+                _a.trys.push([1, 4, , 5]);
+                return [4 /*yield*/, (0, connection_1.asyncMySQL)("SELECT MAX(account_number) FROM accounts", [])];
             case 2:
-                results = _a.sent();
-                return [2 /*return*/, null];
+                latestNumber = _a.sent();
+                return [4 /*yield*/, (0, connection_1.asyncMySQL)("SELECT MAX(sort_code) FROM accounts", [])];
             case 3:
-                errors_1 = _a.sent();
-                errorsModified_1 = {};
-                errors_1.details.forEach(function (error) {
-                    var _a;
-                    var key = (_a = error.context) === null || _a === void 0 ? void 0 : _a.key;
-                    if (key) {
-                        errorsModified_1[key] = error.message;
-                    }
-                });
-                return [2 /*return*/, errorsModified_1];
-            case 4: return [2 /*return*/];
+                latestCode = _a.sent();
+                console.log(latestNumber[0]["MAX(account_number)"]);
+                console.log(latestCode[0]);
+                if (latestNumber &&
+                    !isNaN(Number(latestNumber[0]["MAX(account_number)"]))) {
+                    accountNumber = String(Number(latestNumber[0]["MAX(account_number)"]) + 1);
+                }
+                else {
+                    accountNumber = "20304050";
+                }
+                if (latestCode && !isNaN(Number(latestCode[0]["MAX(sort_code)"]))) {
+                    sortCode = String(Number(latestCode[0]["MAX(sort_code)"]) + 1);
+                }
+                else {
+                    sortCode = "102030";
+                }
+                return [3 /*break*/, 5];
+            case 4:
+                e_1 = _a.sent();
+                console.log(e_1);
+                return [3 /*break*/, 5];
+            case 5:
+                console.log(accountNumber, sortCode);
+                return [2 /*return*/, { accountNumber: accountNumber, sortCode: sortCode }];
         }
     });
 }); };
-exports.validate = validate;
+exports.accountDetails = accountDetails;
