@@ -11,7 +11,7 @@ const router = express.Router();
 // importing the random id generator function
 import { genRandomString } from "../utils/math";
 
-// importing joi validator
+// importing joi validation
 import { validate } from "../validation/index";
 
 // import asyncMySQL function
