@@ -29,7 +29,7 @@ interface DatabaseEntry {
   account_id?: number;
 }
 
-// import router
+// import router for express
 const router = express.Router();
 
 // // route
