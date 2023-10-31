@@ -260,6 +260,18 @@ router.post("/pay", async (req, res) => {
 
     console.log(result);
 
+    const currentBalance = (await asyncPgSQL(
+      `SELECT balance FROM accounts WHERE id = $1`,
+      [accountId]
+    )) as any;
+
+    console.log(
+      "Current Balance for Account ID",
+      accountId,
+      ":",
+      currentBalance
+    );
+
     if (result.changedRows !== 1) {
       // Send an error response if the balance wasn't updated.
       res.send({
