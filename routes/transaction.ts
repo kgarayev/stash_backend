@@ -15,7 +15,7 @@ import { genRandomString } from "../utils/math";
 import { validate } from "../validation/index";
 
 // import asyncMySQL function
-import { asyncMySQL } from "../database/connection";
+import { asyncPgSQL } from "../database/connection";
 
 // import queries
 import { queries } from "../database/queries";
@@ -55,7 +55,7 @@ interface DatabaseEntry {
 router.get("/", async (req, res) => {
   const token = req.headers.token;
 
-  const results = await asyncMySQL(getIdByToken(), [token]);
+  const results = await asyncPgSQL(getIdByToken(), [token]);
 
   console.log(results);
 
@@ -69,7 +69,7 @@ router.get("/", async (req, res) => {
   // ask sql for data
   // returns an array of results
   try {
-    const results = (await asyncMySQL(
+    const results = (await asyncPgSQL(
       `SELECT * FROM transactions WHERE account_id IN (SELECT id FROM accounts WHERE user_id = ?)`,
       [userId]
     )) as DatabaseEntry[];
@@ -97,7 +97,7 @@ router.post("/receive", async (req, res) => {
 
   const token = req.headers.token;
 
-  const results = await asyncMySQL(getIdByToken(), [token]);
+  const results = await asyncPgSQL(getIdByToken(), [token]);
 
   console.log(results);
 
@@ -129,7 +129,7 @@ router.post("/receive", async (req, res) => {
   //   destructuring the body
   const { amount } = req.body;
 
-  const accountId = (await asyncMySQL(
+  const accountId = (await asyncPgSQL(
     `SELECT id FROM accounts WHERE user_id = ?`,
     [userId]
   )) as any;
@@ -157,14 +157,14 @@ router.post("/receive", async (req, res) => {
 
   // implementing the query
   try {
-    await asyncMySQL(addTransaction(), [
+    await asyncPgSQL(addTransaction(), [
       transaction.type,
       transaction.details,
       amount,
       String(transaction.accountId),
     ]);
 
-    const result = await asyncMySQL(
+    const result = await asyncPgSQL(
       `UPDATE accounts SET balance = balance + ? WHERE id = ?`,
       [amount, transaction.accountId]
     );
@@ -189,7 +189,7 @@ router.post("/pay", async (req, res) => {
 
   const token = req.headers.token;
 
-  const results = await asyncMySQL(getIdByToken(), [token]);
+  const results = await asyncPgSQL(getIdByToken(), [token]);
 
   console.log(results);
 
@@ -223,7 +223,7 @@ router.post("/pay", async (req, res) => {
   //   destructuring the body
   const { amount, payeeName } = req.body;
 
-  const accountId = (await asyncMySQL(
+  const accountId = (await asyncPgSQL(
     `SELECT id FROM accounts WHERE user_id = ?`,
     [userId]
   )) as any;
@@ -251,7 +251,7 @@ router.post("/pay", async (req, res) => {
 
   // implementing the query
   try {
-    const rawResult = await asyncMySQL(
+    const rawResult = await asyncPgSQL(
       `UPDATE accounts SET balance = balance - ? WHERE id = ? AND balance >= ?`,
       [amount, transaction.accountId, amount]
     );
@@ -269,7 +269,7 @@ router.post("/pay", async (req, res) => {
       return;
     }
 
-    await asyncMySQL(addTransaction(), [
+    await asyncPgSQL(addTransaction(), [
       transaction.type,
       transaction.details,
       amount,

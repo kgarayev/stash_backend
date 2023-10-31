@@ -1,5 +1,5 @@
 import { queries } from "../database/queries";
-import { asyncMySQL } from "../database/connection";
+import { asyncPgSQL } from "../database/connection";
 import { Request as ExpressRequest, Response, NextFunction } from "express";
 
 interface Request extends ExpressRequest {
@@ -12,7 +12,7 @@ const { getIdByToken } = queries;
 const authorise = async (req: Request, res: Response, next: NextFunction) => {
   const token = req.headers.token;
 
-  const results = await asyncMySQL(getIdByToken(), [token]);
+  const results = await asyncPgSQL(getIdByToken(), [token]);
 
   console.log(results);
 
@@ -32,7 +32,7 @@ const authorise = async (req: Request, res: Response, next: NextFunction) => {
     const currentDate = new Date();
     if (currentDate > expiryDate) {
       try {
-        const result = await asyncMySQL(`DELETE * FROM tokens WHERE token=?`, [
+        const result = await asyncPgSQL(`DELETE * FROM tokens WHERE token=?`, [
           token,
         ]);
 

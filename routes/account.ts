@@ -15,7 +15,7 @@ import { genRandomString } from "../utils/math";
 import { validate } from "../validation/index";
 
 // import asyncMySQL function
-import { asyncMySQL } from "../database/connection";
+import { asyncPgSQL } from "../database/connection";
 
 // import queries
 import { queries } from "../database/queries";
@@ -54,9 +54,9 @@ interface DatabaseEntry {
 router.get("/", async (req, res) => {
   const token = req.headers.token;
 
-  let chosenItems = [0,1,2];
+  let chosenItems = [0, 1, 2];
 
-  const results = await asyncMySQL(getIdByToken(), [token]);
+  const results = await asyncPgSQL(getIdByToken(), [token]);
 
   console.log(results);
 
@@ -71,7 +71,7 @@ router.get("/", async (req, res) => {
     // ask sql for data
     // returns an array of results
 
-    const results = (await asyncMySQL(
+    const results = (await asyncPgSQL(
       `SELECT * FROM accounts JOIN users ON accounts.user_id = users.id WHERE users.id = ?`,
       [userId]
     )) as DatabaseEntry[];

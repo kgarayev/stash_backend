@@ -16,7 +16,7 @@ import { hash256 } from "../utils/hash";
 import { validate } from "../validation/index";
 
 // import asyncMySQL function
-import { asyncMySQL } from "../database/connection";
+import { asyncPgSQL } from "../database/connection";
 
 // import queries
 import { queries } from "../database/queries";
@@ -97,7 +97,7 @@ router.post("/register", async (req, res) => {
 
   // implementing the query
   try {
-    await asyncMySQL(addUser(), [
+    await asyncPgSQL(addUser(), [
       firstName,
       lastName,
       number,
@@ -111,7 +111,7 @@ router.post("/register", async (req, res) => {
 
     try {
       const { accountNumber, sortCode } = await accountDetails();
-      const results = await asyncMySQL(checkUserCreds(), [
+      const results = await asyncPgSQL(checkUserCreds(), [
         email,
         hashedPassword,
       ]);
@@ -120,7 +120,7 @@ router.post("/register", async (req, res) => {
 
       // console.log(userId);
 
-      const sqlResponse = await asyncMySQL(addAccount(), [
+      const sqlResponse = await asyncPgSQL(addAccount(), [
         "current account",
         accountNumber,
         sortCode,
@@ -170,7 +170,7 @@ router.post("/login", async (req, res) => {
 
   if (token) {
     // If token exists, verify it
-    const results = await asyncMySQL(getIdByToken(), [token]);
+    const results = await asyncPgSQL(getIdByToken(), [token]);
 
     // If token is valid
     if (results && results.length > 0) {
@@ -214,7 +214,7 @@ router.post("/login", async (req, res) => {
   // implementing the query
   try {
     // return something if there is amatch
-    const results = await asyncMySQL(checkUserCreds(), [email, hashedPassword]);
+    const results = await asyncPgSQL(checkUserCreds(), [email, hashedPassword]);
 
     // if there is something, generate a token
     if (results.length === 1) {
@@ -227,7 +227,7 @@ router.post("/login", async (req, res) => {
       const maxAge = 1800000;
 
       // add a token into a tokens table
-      await asyncMySQL(addToken(), [results[0].id, token, maxAge]);
+      await asyncPgSQL(addToken(), [results[0].id, token, maxAge]);
 
       res.send({ status: 1, token });
       return;
@@ -255,7 +255,7 @@ router.post("/logout", async (req, res) => {
 
   console.log(token);
 
-  const results = await asyncMySQL(getIdByToken(), [token]);
+  const results = await asyncPgSQL(getIdByToken(), [token]);
 
   console.log(results);
 
@@ -265,7 +265,7 @@ router.post("/logout", async (req, res) => {
   }
 
   try {
-    const results = await asyncMySQL(`DELETE FROM tokens WHERE token = ?`, [
+    const results = await asyncPgSQL(`DELETE FROM tokens WHERE token = ?`, [
       token,
     ]);
 

@@ -2,7 +2,7 @@
 import express from "express";
 
 // import asyncMySQL function
-import { asyncMySQL } from "../database/connection";
+import { asyncPgSQL } from "../database/connection";
 
 interface DatabaseEntry {
   id?: number;
