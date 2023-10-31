@@ -1,49 +1,45 @@
 // function to generate UK account number and sort code
 
-// import asyncMySQL function
-import { number } from "joi";
 import { asyncPgSQL } from "../database/connection";
 
-// import queries
-import { queries } from "../database/queries";
+// Default initialization values for account number and sort code
+const defaultAccountNumber = "20304050";
+const defaultSortCode = "102030";
 
 const accountDetails = async () => {
   console.log("hello from account details function");
 
-  let accountNumber = "";
-  let sortCode = "";
+  // Initialize with default values
+  let accountNumber = defaultAccountNumber;
+  let sortCode = defaultSortCode;
 
   try {
-    const latestNumber = await asyncPgSQL(
-      `SELECT MAX(account_number) FROM accounts`,
+    // Use alias in the SQL query for easier access
+    const latestNumberResult = await asyncPgSQL(
+      `SELECT MAX(account_number) AS max_account_number FROM accounts`,
       []
     );
-    const latestCode = await asyncPgSQL(
-      `SELECT MAX(sort_code) FROM accounts`,
+    const latestCodeResult = await asyncPgSQL(
+      `SELECT MAX(sort_code) AS max_sort_code FROM accounts`,
       []
     );
 
-    console.log(latestNumber[0]["MAX(account_number)"]);
-    console.log(latestCode[0]);
+    // Access the values using the alias
+    const latestNumber = latestNumberResult[0].max_account_number;
+    const latestCode = latestCodeResult[0].max_sort_code;
 
-    if (
-      latestNumber &&
-      !isNaN(Number(latestNumber[0]["MAX(account_number)"]))
-    ) {
-      accountNumber = String(
-        Number(latestNumber[0]["MAX(account_number)"]) + 1
-      );
-    } else {
-      accountNumber = "20304050";
+    console.log(latestNumber);
+    console.log(latestCode);
+
+    if (latestNumber && !isNaN(Number(latestNumber))) {
+      accountNumber = String(Number(latestNumber) + 1);
     }
 
-    if (latestCode && !isNaN(Number(latestCode[0]["MAX(sort_code)"]))) {
-      sortCode = String(Number(latestCode[0]["MAX(sort_code)"]) + 1);
-    } else {
-      sortCode = "102030";
+    if (latestCode && !isNaN(Number(latestCode))) {
+      sortCode = String(Number(latestCode) + 1);
     }
   } catch (e) {
-    console.log(e);
+    console.error("Error in accountDetails function:", e);
   }
 
   console.log(accountNumber, sortCode);

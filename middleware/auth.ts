@@ -32,10 +32,9 @@ const authorise = async (req: Request, res: Response, next: NextFunction) => {
     const currentDate = new Date();
     if (currentDate > expiryDate) {
       try {
-        const result = await asyncPgSQL(`DELETE * FROM tokens WHERE token=?`, [
+        const result = await asyncPgSQL(`DELETE FROM tokens WHERE token = $1`, [
           token,
         ]);
-
         return res.send({ status: 0, reason: "Token has expired" });
       } catch (e) {
         console.log("Something has gone wrong");
