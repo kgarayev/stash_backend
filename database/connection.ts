@@ -31,7 +31,7 @@ const pool = new Pool({
 // resolve if no error, reject if error
 // wrapping the drive inside a promise
 // returns an array
-const asyncMySQL = (query: string, params: any[]): Promise<any[]> => {
+const asyncPgSQL = (query: string, params: any[]): Promise<any[]> => {
   return new Promise((resolve, reject) => {
     pool.query(query, params, (error, results) => {
       if (error) {
@@ -45,17 +45,15 @@ const asyncMySQL = (query: string, params: any[]): Promise<any[]> => {
 };
 
 (async () => {
-  // create the individual tables now
-  // create tables createUsersTable, accounts and transactions
   try {
-    await asyncMySQL(createUsersTable(), []);
-    await asyncMySQL(createAccountsTable(), []);
-    await asyncMySQL(createTransactionsTable(), []);
-    await asyncMySQL(createTokensTable(), []);
+    await asyncPgSQL(queries.createUsersTable(), []);
+    await asyncPgSQL(queries.createAccountsTable(), []);
+    await asyncPgSQL(queries.createTransactionsTable(), []);
+    await asyncPgSQL(queries.createTokensTable(), []);
   } catch (error) {
     console.log(error);
   }
 })();
 
 // exporting the function to be used elsewhere on the project
-export { asyncMySQL };
+export { asyncPgSQL };
