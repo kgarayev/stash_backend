@@ -285,3 +285,4 @@ router.post("/logout", async (req, res) => {
 
 // exporting the router
 export { router };
+// export default router;
