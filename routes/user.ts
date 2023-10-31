@@ -265,7 +265,7 @@ router.post("/logout", async (req, res) => {
   }
 
   try {
-    const results = await asyncPgSQL(`DELETE FROM tokens WHERE token = ?`, [
+    const results = await asyncPgSQL(`DELETE FROM tokens WHERE token = $1`, [
       token,
     ]);
 

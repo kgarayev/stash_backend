@@ -70,7 +70,7 @@ router.get("/", async (req, res) => {
   // returns an array of results
   try {
     const results = (await asyncPgSQL(
-      `SELECT * FROM transactions WHERE account_id IN (SELECT id FROM accounts WHERE user_id = ?)`,
+      `SELECT * FROM transactions WHERE account_id IN (SELECT id FROM accounts WHERE user_id = $1)`,
       [userId]
     )) as DatabaseEntry[];
 
@@ -130,7 +130,7 @@ router.post("/receive", async (req, res) => {
   const { amount } = req.body;
 
   const accountId = (await asyncPgSQL(
-    `SELECT id FROM accounts WHERE user_id = ?`,
+    `SELECT id FROM accounts WHERE user_id = $1`,
     [userId]
   )) as any;
 
@@ -165,7 +165,7 @@ router.post("/receive", async (req, res) => {
     ]);
 
     const result = await asyncPgSQL(
-      `UPDATE accounts SET balance = balance + ? WHERE id = ?`,
+      `UPDATE accounts SET balance = balance + $1 WHERE id = $2`,
       [amount, transaction.accountId]
     );
 
@@ -224,7 +224,7 @@ router.post("/pay", async (req, res) => {
   const { amount, payeeName } = req.body;
 
   const accountId = (await asyncPgSQL(
-    `SELECT id FROM accounts WHERE user_id = ?`,
+    `SELECT id FROM accounts WHERE user_id = $1`,
     [userId]
   )) as any;
 
@@ -252,7 +252,7 @@ router.post("/pay", async (req, res) => {
   // implementing the query
   try {
     const rawResult = await asyncPgSQL(
-      `UPDATE accounts SET balance = balance - ? WHERE id = ? AND balance >= ?`,
+      `UPDATE accounts SET balance = balance - $1 WHERE id = $2 AND balance >= $3`,
       [amount, transaction.accountId, amount]
     );
 

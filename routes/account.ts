@@ -72,7 +72,7 @@ router.get("/", async (req, res) => {
     // returns an array of results
 
     const results = (await asyncPgSQL(
-      `SELECT * FROM accounts JOIN users ON accounts.user_id = users.id WHERE users.id = ?`,
+      `SELECT * FROM accounts JOIN users ON accounts.user_id = users.id WHERE users.id = $1`,
       [userId]
     )) as DatabaseEntry[];
 
