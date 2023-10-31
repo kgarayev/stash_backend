@@ -38,7 +38,7 @@ const asyncMySQL = (query: string, params: any[]): Promise<any[]> => {
         reject(error);
         return;
       }
-      resolve(results);
+      resolve(results.rows);
       return;
     });
   });
