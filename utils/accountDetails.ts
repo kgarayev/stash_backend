@@ -2,7 +2,7 @@
 
 // import asyncMySQL function
 import { number } from "joi";
-import { asyncMySQL } from "../database/connection";
+import { asyncPgSQL } from "../database/connection";
 
 // import queries
 import { queries } from "../database/queries";
@@ -14,11 +14,11 @@ const accountDetails = async () => {
   let sortCode = "";
 
   try {
-    const latestNumber = await asyncMySQL(
+    const latestNumber = await asyncPgSQL(
       `SELECT MAX(account_number) FROM accounts`,
       []
     );
-    const latestCode = await asyncMySQL(
+    const latestCode = await asyncPgSQL(
       `SELECT MAX(sort_code) FROM accounts`,
       []
     );
