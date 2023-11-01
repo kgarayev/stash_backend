@@ -24,19 +24,21 @@ const accountDetails = async () => {
       []
     );
 
-    // Access the values using the alias
-    const latestNumber = latestNumberResult[0].max_account_number;
-    const latestCode = latestCodeResult[0].max_sort_code;
+    // Type checking and making sure the 'rows' property exists and has at least one element
+    if (latestNumberResult.rows && latestNumberResult.rows.length > 0) {
+      const latestNumber = latestNumberResult.rows[0].max_account_number;
 
-    console.log(latestNumber);
-    console.log(latestCode);
-
-    if (latestNumber && !isNaN(Number(latestNumber))) {
-      accountNumber = String(Number(latestNumber) + 1);
+      if (latestNumber && !isNaN(Number(latestNumber))) {
+        accountNumber = String(Number(latestNumber) + 1);
+      }
     }
 
-    if (latestCode && !isNaN(Number(latestCode))) {
-      sortCode = String(Number(latestCode) + 1);
+    if (latestCodeResult.rows && latestCodeResult.rows.length > 0) {
+      const latestCode = latestCodeResult.rows[0].max_sort_code;
+
+      if (latestCode && !isNaN(Number(latestCode))) {
+        sortCode = String(Number(latestCode) + 1);
+      }
     }
   } catch (e) {
     console.error("Error in accountDetails function:", e);

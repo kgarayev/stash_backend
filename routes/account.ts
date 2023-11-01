@@ -54,49 +54,45 @@ interface DatabaseEntry {
 router.get("/", async (req, res) => {
   const token = req.headers.token;
 
-  let chosenItems = [0, 1, 2];
-
-  const results = await asyncPgSQL(getIdByToken(), [token]);
-
-  console.log(results);
-
-  if (!results || results.length === 0) {
-    res.send({ status: 0, reason: "No results found" });
-    return;
-  }
-
-  const userId = results[0].user_id;
-
   try {
-    // ask sql for data
-    // returns an array of results
+    // Assume that asyncPgSQL returns an object that includes a 'rows' array.
+    // Make sure your asyncPgSQL function and queries align with this format.
+    const tokenResult = await asyncPgSQL(getIdByToken(), [token]);
 
-    const results = (await asyncPgSQL(
-      `SELECT * FROM accounts JOIN users ON accounts.user_id = users.id WHERE users.id = $1`,
-      [userId]
-    )) as DatabaseEntry[];
-
-    delete results[0].id;
-    delete results[0].user_id;
-    delete results[0].created;
-
-    console.log(results[0]);
-
-    // check if the results are there
-    if (results.length > 0) {
-      res.send({ status: 1, result: results[0] });
+    // Check for the presence of rows and at least one row in the result
+    if (!tokenResult.rows || tokenResult.rows.length === 0) {
+      res.send({ status: 0, reason: "No results found" });
       return;
     }
+
+    const userId = tokenResult.rows[0].user_id; // Assuming 'user_id' is returned in the rows.
+
+    const accountResults = await asyncPgSQL(
+      `SELECT * FROM accounts JOIN users ON accounts.user_id = users.id WHERE users.id = $1`,
+      [userId]
+    );
+
+    // Check if there are any results
+    if (!accountResults.rows || accountResults.rows.length === 0) {
+      res.send({ status: 0, reason: "Id not found" });
+      return;
+    }
+
+    // Assume that each row is a DatabaseEntry object
+    const accounts = accountResults.rows as DatabaseEntry[];
+
+    delete accounts[0].id;
+    delete accounts[0].user_id;
+    delete accounts[0].created;
+
+    console.log(accounts[0]);
+
+    res.send({ status: 1, result: accounts[0] });
   } catch (e) {
     console.log(e);
-    // if the resuts are not there, communicate this
     res.send({ status: 0, e });
     return;
   }
-
-  // if the resuts are not there, communicate this
-  res.send({ status: 0, reason: "Id not found" });
-  return;
 });
 
 // exporting the router
