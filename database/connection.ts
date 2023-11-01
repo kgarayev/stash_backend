@@ -1,6 +1,5 @@
-// import mysql
-import mysql from "mysql";
-
+// import pg
+import pg from "pg";
 import dotenv from "dotenv";
 dotenv.config();
 
@@ -14,16 +13,17 @@ const {
   createTokensTable,
 } = queries;
 
+const { Pool } = pg;
+
 // instance of a connection
 // this driver does not support promises
 // need to create our own wrapper / promisify this
 // connect to RDMS without specifying the database itself
-const pool = mysql.createPool({
-  connectionLimit: 10,
+const pool = new Pool({
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
   host: process.env.DB_HOST,
-  port: process.env.DB_PORT ? parseInt(process.env.DB_PORT) : 3306,
+  port: process.env.DB_PORT ? parseInt(process.env.DB_PORT) : 5432,
   database: process.env.DB_NAME,
 });
 
@@ -31,7 +31,10 @@ const pool = mysql.createPool({
 // resolve if no error, reject if error
 // wrapping the drive inside a promise
 // returns an array
-const asyncMySQL = (query: string, params: any[]): Promise<any[]> => {
+const asyncPgSQL = (
+  query: string,
+  params: any[]
+): Promise<pg.QueryResult<any>> => {
   return new Promise((resolve, reject) => {
     pool.query(query, params, (error, results) => {
       if (error) {
@@ -45,17 +48,15 @@ const asyncMySQL = (query: string, params: any[]): Promise<any[]> => {
 };
 
 (async () => {
-  // create the individual tables now
-  // create tables createUsersTable, accounts and transactions
   try {
-    await asyncMySQL(createUsersTable(), []);
-    await asyncMySQL(createAccountsTable(), []);
-    await asyncMySQL(createTransactionsTable(), []);
-    await asyncMySQL(createTokensTable(), []);
+    await asyncPgSQL(queries.createUsersTable(), []);
+    await asyncPgSQL(queries.createAccountsTable(), []);
+    await asyncPgSQL(queries.createTransactionsTable(), []);
+    await asyncPgSQL(queries.createTokensTable(), []);
   } catch (error) {
     console.log(error);
   }
 })();
 
 // exporting the function to be used elsewhere on the project
-export { asyncMySQL };
+export { asyncPgSQL };

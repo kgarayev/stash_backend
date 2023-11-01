@@ -28,7 +28,8 @@
     "joi": "^17.10.0",
     "jsonwebtoken": "^9.0.1",
     "morgan": "~1.9.1",
-    "mysql": "^2.18.1"
+    "mysql": "^2.18.1",
+    "pg": "^8.11.3"
   },
   "devDependencies": {
     "@types/cookie-parser": "^1.4.3",
@@ -36,6 +37,7 @@
     "@types/express-mysql-session": "^3.0.0",
     "@types/express-session": "^1.17.7",
     "@types/node": "^20.4.4",
+    "@types/pg": "^8.10.7",
     "nodemon": "^3.0.1",
     "ts-node": "^10.9.1",
     "typescript": "^5.2.2"

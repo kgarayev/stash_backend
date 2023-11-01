@@ -15,7 +15,7 @@ import { genRandomString } from "../utils/math";
 import { validate } from "../validation/index";
 
 // import asyncMySQL function
-import { asyncMySQL } from "../database/connection";
+import { asyncPgSQL } from "../database/connection";
 
 // import queries
 import { queries } from "../database/queries";
@@ -55,38 +55,39 @@ interface DatabaseEntry {
 router.get("/", async (req, res) => {
   const token = req.headers.token;
 
-  const results = await asyncMySQL(getIdByToken(), [token]);
+  const tokenResults = await asyncPgSQL(getIdByToken(), [token]);
 
-  console.log(results);
-
-  if (!results || results.length === 0) {
-    res.send({ status: 0, reason: "No results found" });
+  // Check if the token is valid and has corresponding userId
+  if (!tokenResults.rows || tokenResults.rows.length === 0) {
+    res.send({ status: 0, reason: "No results or id not found" });
     return;
   }
 
-  const userId = results[0].user_id;
+  const userId = tokenResults.rows[0].user_id;
 
-  // ask sql for data
-  // returns an array of results
+  console.log(userId);
+
   try {
-    const results = (await asyncMySQL(
-      `SELECT * FROM transactions WHERE account_id IN (SELECT id FROM accounts WHERE user_id = ?)`,
+    const transactionResults = await asyncPgSQL(
+      `SELECT * FROM transactions WHERE account_id IN (SELECT id FROM accounts WHERE user_id = $1)`,
       [userId]
-    )) as DatabaseEntry[];
+    );
 
-    // check if the results are there
-    if (results.length > 0) {
-      res.send({ status: 1, results });
+    // Using `rows` property to access results
+    if (transactionResults.rows.length > 0) {
+      res.send({ status: 1, results: transactionResults.rows });
+      return;
+    } else {
+      res.send({ status: 0, reason: "No transactions found for user" });
       return;
     }
   } catch (e) {
-    // console.log(e);
-
-    res.send({ status: 0, reason: e });
+    console.error(e); // Enhanced error logging
+    res.send({
+      status: 0,
+      reason: "An error occurred while fetching transactions",
+    });
   }
-
-  // if the resuts are not there, communicate this
-  res.send({ status: 0, reason: "Id not found" });
 });
 
 // // POST ROUTE:
@@ -97,16 +98,16 @@ router.post("/receive", async (req, res) => {
 
   const token = req.headers.token;
 
-  const results = await asyncMySQL(getIdByToken(), [token]);
+  const tokenResults = await asyncPgSQL(getIdByToken(), [token]);
 
-  console.log(results);
+  console.log(tokenResults);
 
-  if (!results || results.length === 0) {
+  if (!tokenResults.rows || tokenResults.rows.length === 0) {
     res.send({ status: 0, reason: "No results found" });
     return;
   }
 
-  const userId = results[0].user_id;
+  const userId = tokenResults.rows[0].user_id;
 
   for (let key in req.body) {
     if (typeof req.body[key] === "string" && req.body[key].includes("%")) {
@@ -129,18 +130,31 @@ router.post("/receive", async (req, res) => {
   //   destructuring the body
   const { amount } = req.body;
 
-  const accountId = (await asyncMySQL(
-    `SELECT id FROM accounts WHERE user_id = ?`,
+  const accountIdResult = await asyncPgSQL(
+    `SELECT id FROM accounts WHERE user_id = $1`,
     [userId]
-  )) as any;
+  );
+
+  // Check if accountIdResult.rows is not empty and has an 'id'
+  if (
+    !accountIdResult.rows ||
+    accountIdResult.rows.length === 0 ||
+    !accountIdResult.rows[0].id
+  ) {
+    res.send({ status: 0, reason: "Account ID not found for the user" });
+    return;
+  }
+
+  const accountId = accountIdResult.rows[0].id;
 
   // console.log(accountId[0].id);
 
+  // Use accountId in your transaction object
   const transaction = {
     type: "received",
     details: "debit card pay in",
     amount,
-    accountId: Number(accountId[0].id),
+    accountId: accountId, // Here, use the id directly
   };
 
   // validate
@@ -157,15 +171,15 @@ router.post("/receive", async (req, res) => {
 
   // implementing the query
   try {
-    await asyncMySQL(addTransaction(), [
+    await asyncPgSQL(addTransaction(), [
       transaction.type,
       transaction.details,
       amount,
       String(transaction.accountId),
     ]);
 
-    const result = await asyncMySQL(
-      `UPDATE accounts SET balance = balance + ? WHERE id = ?`,
+    const result = await asyncPgSQL(
+      `UPDATE accounts SET balance = balance + $1 WHERE id = $2`,
       [amount, transaction.accountId]
     );
 
@@ -189,16 +203,16 @@ router.post("/pay", async (req, res) => {
 
   const token = req.headers.token;
 
-  const results = await asyncMySQL(getIdByToken(), [token]);
+  const tokenResults = await asyncPgSQL(getIdByToken(), [token]);
 
-  console.log(results);
+  console.log(tokenResults);
 
-  if (!results || results.length === 0) {
+  if (!tokenResults.rows || tokenResults.rows.length === 0) {
     res.send({ status: 0, reason: "No results found" });
     return;
   }
 
-  const userId = results[0].user_id;
+  const userId = tokenResults.rows[0].user_id;
 
   for (let key in req.body) {
     if (typeof req.body[key] === "string" && req.body[key].includes("%")) {
@@ -223,19 +237,29 @@ router.post("/pay", async (req, res) => {
   //   destructuring the body
   const { amount, payeeName } = req.body;
 
-  const accountId = (await asyncMySQL(
-    `SELECT id FROM accounts WHERE user_id = ?`,
+  const accountResult = await asyncPgSQL(
+    `SELECT id FROM accounts WHERE user_id = $1`,
     [userId]
-  )) as any;
+  );
 
-  console.log(accountId[0].id);
+  // Make sure accountResult.rows exists and has at least one row
+  if (!accountResult.rows || accountResult.rows.length === 0) {
+    res.send({ status: 0, reason: "Account not found for the user" });
+    return;
+  }
+
+  const accountId = accountResult.rows[0].id;
+
+  console.log("account id is:", accountId);
 
   const transaction = {
     type: "sent",
     details: payeeName,
     amount,
-    accountId: Number(accountId[0].id),
+    accountId: Number(accountId),
   };
+
+  console.log(transaction);
 
   // validate
   let transactionErrors = await validate(transaction, "addTransaction");
@@ -251,17 +275,13 @@ router.post("/pay", async (req, res) => {
 
   // implementing the query
   try {
-    const rawResult = await asyncMySQL(
-      `UPDATE accounts SET balance = balance - ? WHERE id = ? AND balance >= ?`,
+    const rawResult = await asyncPgSQL(
+      `UPDATE accounts SET balance = balance - $1 WHERE id = $2 AND balance >= $3`,
       [amount, transaction.accountId, amount]
     );
 
-    const result = rawResult as unknown as OkPacket;
-
-    console.log(result);
-
-    if (result.changedRows !== 1) {
-      // Send an error response if the balance wasn't updated.
+    // Check `rowCount` here
+    if (rawResult.rowCount !== 1) {
       res.send({
         status: 0,
         reason: "Transaction failed, possibly due to insufficient funds",
@@ -269,17 +289,39 @@ router.post("/pay", async (req, res) => {
       return;
     }
 
-    await asyncMySQL(addTransaction(), [
+    const updatedRows = rawResult.rows;
+
+    const result = rawResult as unknown as OkPacket;
+
+    console.log(result);
+
+    const currentBalance = (await asyncPgSQL(
+      `SELECT balance FROM accounts WHERE id = $1`,
+      [accountId]
+    )) as any;
+
+    console.log(
+      "Current Balance for Account ID",
+      accountId,
+      ":",
+      currentBalance
+    );
+
+    const transResult = await asyncPgSQL(addTransaction(), [
       transaction.type,
       transaction.details,
       amount,
       String(transaction.accountId),
     ]);
 
+    console.log(transResult);
+
     // notifying the front of successful result
     res.send({ status: 1, message: "Transaction added" });
     return;
   } catch (error) {
+    console.log(error);
+
     // error message to the front
     res.send({ status: 0, reason: "Something has gone wrong" });
     return;
