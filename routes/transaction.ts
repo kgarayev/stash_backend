@@ -60,11 +60,13 @@ router.get("/", async (req, res) => {
   console.log(results);
 
   if (!results || results.length === 0) {
-    res.send({ status: 0, reason: "No results found" });
+    res.send({ status: 0, reason: "No results or id not found" });
     return;
   }
 
   const userId = results[0].user_id;
+
+  console.log(userId);
 
   // ask sql for data
   // returns an array of results
@@ -86,7 +88,7 @@ router.get("/", async (req, res) => {
   }
 
   // if the resuts are not there, communicate this
-  res.send({ status: 0, reason: "Id not found" });
+  res.send({ status: 0, reason: "No results or id not found" });
 });
 
 // // POST ROUTE:
