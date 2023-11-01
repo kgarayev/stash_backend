@@ -55,40 +55,39 @@ interface DatabaseEntry {
 router.get("/", async (req, res) => {
   const token = req.headers.token;
 
-  const results = await asyncPgSQL(getIdByToken(), [token]);
+  const tokenResults = await asyncPgSQL(getIdByToken(), [token]);
 
-  console.log(results);
-
-  if (!results || results.length === 0) {
+  // Check if the token is valid and has corresponding userId
+  if (!tokenResults.rows || tokenResults.rows.length === 0) {
     res.send({ status: 0, reason: "No results or id not found" });
     return;
   }
 
-  const userId = results[0].user_id;
+  const userId = tokenResults.rows[0].user_id;
 
   console.log(userId);
 
-  // ask sql for data
-  // returns an array of results
   try {
-    const results = (await asyncPgSQL(
+    const transactionResults = await asyncPgSQL(
       `SELECT * FROM transactions WHERE account_id IN (SELECT id FROM accounts WHERE user_id = $1)`,
       [userId]
-    )) as DatabaseEntry[];
+    );
 
-    // check if the results are there
-    if (results.length > 0) {
-      res.send({ status: 1, results });
+    // Using `rows` property to access results
+    if (transactionResults.rows.length > 0) {
+      res.send({ status: 1, results: transactionResults.rows });
+      return;
+    } else {
+      res.send({ status: 0, reason: "No transactions found for user" });
       return;
     }
   } catch (e) {
-    // console.log(e);
-
-    res.send({ status: 0, reason: e });
+    console.error(e); // Enhanced error logging
+    res.send({
+      status: 0,
+      reason: "An error occurred while fetching transactions",
+    });
   }
-
-  // if the resuts are not there, communicate this
-  res.send({ status: 0, reason: "No results or id not found" });
 });
 
 // // POST ROUTE:
@@ -225,19 +224,23 @@ router.post("/pay", async (req, res) => {
   //   destructuring the body
   const { amount, payeeName } = req.body;
 
-  const accountId = (await asyncPgSQL(
+  const accountResult = (await asyncPgSQL(
     `SELECT id FROM accounts WHERE user_id = $1`,
     [userId]
   )) as any;
 
-  console.log(accountId[0].id);
+  const accountId = accountResult[0].id;
+
+  console.log("account id is:", accountId);
 
   const transaction = {
     type: "sent",
     details: payeeName,
     amount,
-    accountId: Number(accountId[0].id),
+    accountId: Number(accountId),
   };
+
+  console.log(transaction);
 
   // validate
   let transactionErrors = await validate(transaction, "addTransaction");
@@ -258,6 +261,17 @@ router.post("/pay", async (req, res) => {
       [amount, transaction.accountId, amount]
     );
 
+    // Check `rowCount` here
+    if (rawResult.rowCount !== 1) {
+      res.send({
+        status: 0,
+        reason: "Transaction failed, possibly due to insufficient funds",
+      });
+      return;
+    }
+
+    const updatedRows = rawResult.rows;
+
     const result = rawResult as unknown as OkPacket;
 
     console.log(result);
@@ -274,26 +288,21 @@ router.post("/pay", async (req, res) => {
       currentBalance
     );
 
-    if (result.changedRows !== 1) {
-      // Send an error response if the balance wasn't updated.
-      res.send({
-        status: 0,
-        reason: "Transaction failed, possibly due to insufficient funds",
-      });
-      return;
-    }
-
-    await asyncPgSQL(addTransaction(), [
+    const transResult = await asyncPgSQL(addTransaction(), [
       transaction.type,
       transaction.details,
       amount,
       String(transaction.accountId),
     ]);
 
+    console.log(transResult);
+
     // notifying the front of successful result
     res.send({ status: 1, message: "Transaction added" });
     return;
   } catch (error) {
+    console.log(error);
+
     // error message to the front
     res.send({ status: 0, reason: "Something has gone wrong" });
     return;

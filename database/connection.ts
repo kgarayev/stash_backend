@@ -31,14 +31,17 @@ const pool = new Pool({
 // resolve if no error, reject if error
 // wrapping the drive inside a promise
 // returns an array
-const asyncPgSQL = (query: string, params: any[]): Promise<any[]> => {
+const asyncPgSQL = (
+  query: string,
+  params: any[]
+): Promise<pg.QueryResult<any>> => {
   return new Promise((resolve, reject) => {
     pool.query(query, params, (error, results) => {
       if (error) {
         reject(error);
         return;
       }
-      resolve(results.rows);
+      resolve(results);
       return;
     });
   });
