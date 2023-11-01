@@ -74,6 +74,8 @@ router.post("/register", async (req, res) => {
   // validate
   let localErrors = await validate(req.body, "addUser");
 
+  console.log(localErrors);
+
   // notify about validation errors and abort if any
   if (localErrors) {
     res.send({ status: 0, reason: "Incomplete or invalid request" });
