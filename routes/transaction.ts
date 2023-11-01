@@ -98,16 +98,16 @@ router.post("/receive", async (req, res) => {
 
   const token = req.headers.token;
 
-  const results = await asyncPgSQL(getIdByToken(), [token]);
+  const tokenResults = await asyncPgSQL(getIdByToken(), [token]);
 
-  console.log(results);
+  console.log(tokenResults);
 
-  if (!results || results.length === 0) {
+  if (!tokenResults.rows || tokenResults.rows.length === 0) {
     res.send({ status: 0, reason: "No results found" });
     return;
   }
 
-  const userId = results[0].user_id;
+  const userId = tokenResults.rows[0].user_id;
 
   for (let key in req.body) {
     if (typeof req.body[key] === "string" && req.body[key].includes("%")) {
@@ -190,16 +190,16 @@ router.post("/pay", async (req, res) => {
 
   const token = req.headers.token;
 
-  const results = await asyncPgSQL(getIdByToken(), [token]);
+  const tokenResults = await asyncPgSQL(getIdByToken(), [token]);
 
-  console.log(results);
+  console.log(tokenResults);
 
-  if (!results || results.length === 0) {
+  if (!tokenResults.rows || tokenResults.rows.length === 0) {
     res.send({ status: 0, reason: "No results found" });
     return;
   }
 
-  const userId = results[0].user_id;
+  const userId = tokenResults.rows[0].user_id;
 
   for (let key in req.body) {
     if (typeof req.body[key] === "string" && req.body[key].includes("%")) {
