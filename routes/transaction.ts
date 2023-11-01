@@ -130,18 +130,31 @@ router.post("/receive", async (req, res) => {
   //   destructuring the body
   const { amount } = req.body;
 
-  const accountId = (await asyncPgSQL(
+  const accountIdResult = await asyncPgSQL(
     `SELECT id FROM accounts WHERE user_id = $1`,
     [userId]
-  )) as any;
+  );
+
+  // Check if accountIdResult.rows is not empty and has an 'id'
+  if (
+    !accountIdResult.rows ||
+    accountIdResult.rows.length === 0 ||
+    !accountIdResult.rows[0].id
+  ) {
+    res.send({ status: 0, reason: "Account ID not found for the user" });
+    return;
+  }
+
+  const accountId = accountIdResult.rows[0].id;
 
   // console.log(accountId[0].id);
 
+  // Use accountId in your transaction object
   const transaction = {
     type: "received",
     details: "debit card pay in",
     amount,
-    accountId: Number(accountId[0].id),
+    accountId: accountId, // Here, use the id directly
   };
 
   // validate
@@ -224,12 +237,18 @@ router.post("/pay", async (req, res) => {
   //   destructuring the body
   const { amount, payeeName } = req.body;
 
-  const accountResult = (await asyncPgSQL(
+  const accountResult = await asyncPgSQL(
     `SELECT id FROM accounts WHERE user_id = $1`,
     [userId]
-  )) as any;
+  );
 
-  const accountId = accountResult[0].id;
+  // Make sure accountResult.rows exists and has at least one row
+  if (!accountResult.rows || accountResult.rows.length === 0) {
+    res.send({ status: 0, reason: "Account not found for the user" });
+    return;
+  }
+
+  const accountId = accountResult.rows[0].id;
 
   console.log("account id is:", accountId);
 
