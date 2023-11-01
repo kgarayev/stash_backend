@@ -89,15 +89,13 @@ router.post("/register", async (req, res) => {
     }
   }
 
-  //   destructuring the body
+  // destructuring the body
   const { firstName, lastName, number, email, dob, password } = req.body;
 
   // creating a password hash with a salt
   const hashedPassword = hash256(password + "stashSalt-2023?");
 
-  // console.log(hashedPassword);
-
-  // implementing the query
+  // Implementing the user addition query
   try {
     await asyncPgSQL(addUser(), [
       firstName,
@@ -108,20 +106,23 @@ router.post("/register", async (req, res) => {
       hashedPassword,
     ]);
 
-    // automatically creating an account for the user
-    // implementing the query
-
+    // Check user credentials to retrieve the user ID
     try {
-      const { accountNumber, sortCode } = await accountDetails();
-      const results = await asyncPgSQL(checkUserCreds(), [
+      const userResults = await asyncPgSQL(checkUserCreds(), [
         email,
         hashedPassword,
       ]);
 
-      const userId = results[0].id;
+      if (!userResults.rows || userResults.rows.length === 0) {
+        throw new Error("User not found after registration.");
+      }
 
-      // console.log(userId);
+      const userId = userResults.rows[0].id;
 
+      // Fetching account details
+      const { accountNumber, sortCode } = await accountDetails();
+
+      // Creating an account for the user
       const sqlResponse = await asyncPgSQL(addAccount(), [
         "current account",
         accountNumber,
@@ -131,31 +132,120 @@ router.post("/register", async (req, res) => {
         "£",
         "UK",
         "0",
-        String(userId),
+        userId.toString(),
       ]);
 
       console.log(sqlResponse);
 
-      // notifying the user of successful result
+      // Notifying the user of successful registration
       res.send({ status: 1, message: "User added" });
-      return;
     } catch (e) {
       console.log(e);
       res.send({ status: 0, message: "something wrong" });
     }
-    return;
   } catch (error) {
-    // error message to the front
     console.log(error);
-
-    res.send({
-      status: 0,
-      reason: "Something wrong",
-    });
-    return;
+    res.send({ status: 0, reason: "Something wrong" });
   }
 });
 
+// LOGIN POST ROUTE
+// log user in
+// router.post("/login", async (req, res) => {
+//   // Check for malicious patterns
+//   for (let key in req.body) {
+//     if (typeof req.body[key] === "string" && req.body[key].includes("%")) {
+//       res.send("Hacker identified!");
+//       return;
+//     }
+//   }
+
+//   // Check for token in headers
+//   const token = req.headers.token;
+
+//   if (token) {
+//     // If token exists, verify it
+//     const results = await asyncPgSQL(getIdByToken(), [token]);
+
+//     // If token is valid
+//     if (results && results.length > 0) {
+//       res.send({ status: 1, token });
+//       return;
+//     }
+//   }
+
+//   try {
+//     // validate
+//     let localErrors = await validate(req.body, "loginUser");
+
+//     // log local errors if any
+//     console.log("errors: ", localErrors);
+
+//     // notify about validation errors and abort if any
+//     if (localErrors) {
+//       res.send({ status: 0, reason: "Incomplete or invalid request" });
+//       return;
+//     }
+//   } catch (e) {
+//     console.log(e);
+//     res.send({ status: 0, reason: "something gone wrong" });
+//   }
+
+//   for (let key in req.body) {
+//     if (req.body[key].includes("%")) {
+//       res.send("Hacker identified!");
+//       return;
+//     }
+//   }
+
+//   //   destructuring the body
+//   const { email, password } = req.body;
+
+//   // creating a password hash with a salt
+//   const hashedPassword = hash256(password + "stashSalt-2023?");
+
+//   console.log(hashedPassword);
+
+//   // implementing the query
+//   try {
+//     // return something if there is amatch
+//     const results = await asyncPgSQL(checkUserCreds(), [email, hashedPassword]);
+
+//     // if there is something, generate a token
+//     if (results.length === 1) {
+//       // generating a token
+//       const token = genRandomString(128);
+
+//       console.log("token:", token);
+
+//       // max age in milliseconds = 30 mins
+//       const maxAge = 1800000;
+
+//       // add a token into a tokens table
+//       await asyncPgSQL(addToken(), [results[0].id, token, maxAge]);
+
+//       res.send({ status: 1, token });
+//       return;
+//     } else {
+//       res.send({ status: 0, reason: "invalid credentials" });
+//       return;
+//     }
+//   } catch (error) {
+//     // error message to the front
+//     console.log(error);
+
+//     // send the response to the front
+//     res.send({
+//       status: 0,
+//       reason: "Something wrong",
+//     });
+//     return;
+//   }
+//   return;
+// });
+
+// LOGIN POST ROUTE
+// log user in
 // LOGIN POST ROUTE
 // log user in
 router.post("/login", async (req, res) => {
@@ -172,10 +262,10 @@ router.post("/login", async (req, res) => {
 
   if (token) {
     // If token exists, verify it
-    const results = await asyncPgSQL(getIdByToken(), [token]);
+    const tokenResults = await asyncPgSQL(getIdByToken(), [token]);
 
     // If token is valid
-    if (results && results.length > 0) {
+    if (tokenResults.rows && tokenResults.rows.length > 0) {
       res.send({ status: 1, token });
       return;
     }
@@ -198,38 +288,32 @@ router.post("/login", async (req, res) => {
     res.send({ status: 0, reason: "something gone wrong" });
   }
 
-  for (let key in req.body) {
-    if (req.body[key].includes("%")) {
-      res.send("Hacker identified!");
-      return;
-    }
-  }
-
-  //   destructuring the body
+  // Destructuring the body to get email and password
   const { email, password } = req.body;
 
-  // creating a password hash with a salt
+  // Creating a password hash with a salt
   const hashedPassword = hash256(password + "stashSalt-2023?");
 
   console.log(hashedPassword);
 
   // implementing the query
   try {
-    // return something if there is amatch
-    const results = await asyncPgSQL(checkUserCreds(), [email, hashedPassword]);
+    // return something if there is a match
+    const userResults = await asyncPgSQL(checkUserCreds(), [
+      email,
+      hashedPassword,
+    ]);
 
     // if there is something, generate a token
-    if (results.length === 1) {
+    if (userResults.rows.length === 1) {
       // generating a token
       const token = genRandomString(128);
-
-      console.log("token:", token);
 
       // max age in milliseconds = 30 mins
       const maxAge = 1800000;
 
       // add a token into a tokens table
-      await asyncPgSQL(addToken(), [results[0].id, token, maxAge]);
+      await asyncPgSQL(addToken(), [userResults.rows[0].id, token, maxAge]);
 
       res.send({ status: 1, token });
       return;
@@ -238,17 +322,11 @@ router.post("/login", async (req, res) => {
       return;
     }
   } catch (error) {
-    // error message to the front
+    // error handling
     console.log(error);
-
-    // send the response to the front
-    res.send({
-      status: 0,
-      reason: "Something wrong",
-    });
+    res.send({ status: 0, reason: "Something wrong" });
     return;
   }
-  return;
 });
 
 // LOG OUT POST ROUTE
@@ -257,26 +335,30 @@ router.post("/logout", async (req, res) => {
 
   console.log(token);
 
-  const results = await asyncPgSQL(getIdByToken(), [token]);
+  // Check for token validation
+  const tokenResults = await asyncPgSQL(getIdByToken(), [token]);
 
-  console.log(results);
+  console.log(tokenResults);
 
-  if (!results || results.length === 0) {
+  if (!tokenResults.rows || tokenResults.rows.length === 0) {
     res.send({ status: 0, reason: "No user found" });
     return;
   }
 
   try {
-    const results = await asyncPgSQL(`DELETE FROM tokens WHERE token = $1`, [
-      token,
-    ]);
-
+    // Before proceeding with logout, check for any malicious patterns
     for (let key in req.body) {
       if (typeof req.body[key] === "string" && req.body[key].includes("%")) {
         res.send("Hacker identified!");
         return;
       }
     }
+
+    // Perform the logout action
+    const deleteResult = await asyncPgSQL(
+      `DELETE FROM tokens WHERE token = $1`,
+      [token]
+    );
 
     res.send({ status: 1, message: "Logged out successfully" });
   } catch (e) {
