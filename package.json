@@ -6,7 +6,8 @@
     "start": "ts-node app.ts",
     "start-app": "ts-node app.ts",
     "start-app-js": "node ./bin/www",
-    "dev": "nodemon app.ts"
+    "dev": "nodemon app.ts",
+    "build": "tsc"
   },
   "dependencies": {
     "@types/cors": "^2.8.13",
